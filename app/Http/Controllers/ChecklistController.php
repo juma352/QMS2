@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Checklist;
+use App\Models\ChecklistSubmission;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class ChecklistController extends Controller
+{
+    /**
+     * Show the blank form for filling out a checklist.
+     * Redirects to results if already completed.
+     */
+    public function show(Checklist $checklist)
+    {
+        $existingSubmission = ChecklistSubmission::where('user_id', Auth::id())
+            ->where('checklist_id', $checklist->id)
+            ->first();
+
+        if ($existingSubmission) {
+            return redirect()->route('checklists.results.show', $existingSubmission->id)
+                ->with('info', 'You have already completed this checklist. Here are your results.');
+        }
+
+        $itemsBySection = $checklist->items->groupBy('section');
+        return view('checklists.show', compact('checklist', 'itemsBySection'));
+    }
+
+    /**
+     * Store a new checklist submission.
+     */
+    public function store(Request $request, Checklist $checklist)
+    {
+        // ... (Your store method with logging remains exactly the same)
+        Log::info('--- Checklist Submission Start ---');
+        $validated = $request->validate([
+            'ratings' => 'required|array',
+            'ratings.*' => 'required|integer|between:1,7',
+            'comments' => 'nullable|array',
+            'comments.*' => 'nullable|string',
+        ]);
+        Log::info('Validation Passed.');
+
+        try {
+            DB::transaction(function () use ($validated, $checklist) {
+                $submission = ChecklistSubmission::create([
+                    'checklist_id' => $checklist->id,
+                    'user_id' => Auth::id(),
+                    'status' => 'Completed',
+                ]);
+
+                foreach ($validated['ratings'] as $itemId => $rating) {
+                    $submission->answers()->create([
+                        'checklist_item_id' => $itemId,
+                        'rating' => $rating,
+                        'comments' => $validated['comments'][$itemId] ?? null,
+                    ]);
+                }
+            });
+        } catch (\Exception $e) {
+            Log::error('Checklist Submission Failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error saving checklist.')->withInput();
+        }
+        
+        Log::info('--- Checklist Submission End: Success ---');
+        return redirect()->route('dashboard')->with('message', $checklist->title . ' submitted successfully!');
+    }
+
+    /**
+     * NEW: Display a list of the user's completed checklist submissions.
+     */
+    public function resultsIndex()
+    {
+        $submissions = ChecklistSubmission::where('user_id', Auth::id())
+            ->with('checklist') // Eager load the checklist title
+            ->latest()
+            ->paginate(10);
+
+        return view('checklists.results_index', compact('submissions'));
+    }
+
+    /**
+     * NEW: Show the detailed results of a single submission.
+     */
+    public function resultsShow(ChecklistSubmission $submission)
+    {
+        // Authorization: Ensure the logged-in user owns this submission.
+        if (Auth::id() !== $submission->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $submission->load(['checklist', 'answers.checklistItem']);
+        return view('checklists.results_show', compact('submission'));
+    }
+}
