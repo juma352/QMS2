@@ -12,6 +12,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StandardController;
+use App\Http\Controllers\UserManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,5 +121,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/cqi-projects', [ReportController::class, 'cqiProjectsReport'])->name('cqi-projects');
         Route::get('/checklist-submissions', [ReportController::class, 'checklistSubmissionReport'])->name('checklist-submissions');
         Route::get('/{reportType}', [ReportController::class, 'generateReport'])->name('generate');
+    });
+
+    // --- USER MANAGEMENT (ADMINS ONLY) ---
+    // This group is protected by the 'role:admin' middleware.
+    // Make sure it points to the correct controller class.
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
     });
 });

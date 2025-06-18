@@ -213,14 +213,19 @@
                 <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->is('reports*') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie icon"></i><span class="link-text">Reports</span>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <i class="fas fa-users icon"></i><span class="link-text">Users</span>
-                </a>
+                
+                {{-- CORRECTED USERS LINK: Now visible only to admins and points to the correct route. --}}
+                @if(Auth::user() && Auth::user()->isAdmin())
+                    <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->is('users*') ? 'active' : '' }}">
+                        <i class="fas fa-users-cog icon"></i><span class="link-text">Users</span>
+                    </a>
+                @endif
+
                 <a href="#" class="sidebar-link">
                     <i class="fas fa-cog icon"></i><span class="link-text">Settings</span>
                 </a>
             </nav>
-            {{-- CORRECTED LOGOUT ROUTE: Now uses 'logout' which is defined in the routes file --}}
+            {{-- CORRECTED LOGOUT ROUTE: Uses 'logout' which is defined in the routes file. --}}
             <form method="POST" action="{{ route('logout') }}" class="logout-form">
                 @csrf
                 <button type="submit" class="sidebar-logout-btn">
@@ -243,7 +248,7 @@
                 <div class="user-menu">
                     <span>{{ Auth::user()->name ?? 'User' }}</span>
                     <span class="text-muted">|</span>
-                    {{-- CORRECTED LOGOUT ROUTE: Now uses 'logout' which is defined in the routes file --}}
+                    {{-- CORRECTED LOGOUT ROUTE: Uses 'logout' which is defined in the routes file. --}}
                     <form method="POST" action="{{ route('logout') }}" class="d-inline">
                         @csrf
                         <button type="submit" class="logout-btn">Logout</button>
