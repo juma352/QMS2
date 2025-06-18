@@ -8,7 +8,8 @@
         <h2 class="h5 mb-0 fw-semibold">Add New CQI Project</h2>
     </div>
     <div class="card-body p-4">
-        <form method="POST" action="{{ route('cqi-projects.store') }}">
+        {{-- CORRECTED ROUTE --}}
+        <form method="POST" action="{{ route('cqi_projects.store') }}">
             @csrf
             <div class="row g-4">
                 <div class="col-md-6">
@@ -65,7 +66,8 @@
                 </div>
             </div>
             <div class="mt-4 text-end">
-                <a href="{{ route('cqi-projects.index') }}" class="btn btn-secondary">Cancel</a>
+                 {{-- CORRECTED ROUTE --}}
+                <a href="{{ route('cqi_projects.index') }}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save Project</button>
             </div>
         </form>

@@ -7,7 +7,8 @@
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between p-3 rounded-top-3">
             <h2 class="h5 mb-0 fw-semibold">All CQI Projects</h2>
-            <a href="{{ route('cqi-projects.create') }}" class="btn btn-outline-light btn-sm fw-medium">
+            {{-- CORRECTED ROUTE --}}
+            <a href="{{ route('cqi_projects.create') }}" class="btn btn-outline-light btn-sm fw-medium">
                 <i class="fas fa-plus-circle me-2"></i>Add New Project
             </a>
         </div>
@@ -41,9 +42,10 @@
                                 <td><span class="badge bg-secondary">{{ $project->status }}</span></td>
                                 <td class="text-center">
                                     <div class="d-inline-flex gap-2">
-                                        <a href="{{ route('cqi-projects.show', $project->id) }}" class="btn btn-outline-info btn-sm" title="View"><i class="fas fa-eye"></i></a>
-                                        <a href="{{ route('cqi-projects.edit', $project->id) }}" class="btn btn-outline-warning btn-sm" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                                        <form action="{{ route('cqi-projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                        {{-- CORRECTED ROUTES --}}
+                                        <a href="{{ route('cqi_projects.show', $project->id) }}" class="btn btn-outline-info btn-sm" title="View"><i class="fas fa-eye"></i></a>
+                                        <a href="{{ route('cqi_projects.edit', $project->id) }}" class="btn btn-outline-warning btn-sm" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+                                        <form action="{{ route('cqi_projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash-alt"></i></button>

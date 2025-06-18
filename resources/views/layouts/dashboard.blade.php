@@ -198,7 +198,7 @@
                 <a href="{{ route('standards.index') }}" class="sidebar-link {{ request()->is('standards*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt icon"></i><span class="link-text">Standards</span>
                 </a>
-                <a href="{{ route('cqi-projects.index') }}" class="sidebar-link {{ request()->is('cqi-projects*') ? 'active' : '' }}">
+                <a href="{{ route('cqi_projects.index') }}" class="sidebar-link {{ request()->is('cqi-projects*') ? 'active' : '' }}">
                     <i class="fas fa-chart-line icon"></i><span class="link-text">CQI Projects</span>
                 </a>
                 <a href="{{ route('audits.index', ['type' => 'Internal']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'Internal' ? 'active' : '' }}">
@@ -220,7 +220,8 @@
                     <i class="fas fa-cog icon"></i><span class="link-text">Settings</span>
                 </a>
             </nav>
-            <form method="POST" action="{{ route('logout') }}" class="logout-form">
+            {{-- CORRECTED LOGOUT ROUTE --}}
+            <form method="POST" action="{{ route('auth.logout') }}" class="logout-form">
                 @csrf
                 <button type="submit" class="sidebar-logout-btn">
                     <span class="sidebar-link">
@@ -242,7 +243,8 @@
                 <div class="user-menu">
                     <span>{{ Auth::user()->name ?? 'User' }}</span>
                     <span class="text-muted">|</span>
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    {{-- CORRECTED LOGOUT ROUTE --}}
+                    <form method="POST" action="{{ route('auth.logout') }}" class="d-inline">
                         @csrf
                         <button type="submit" class="logout-btn">Logout</button>
                     </form>

@@ -3,21 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\ProgramController;
-use App\Http\Controllers\StaffController;
-use App\Http\Controllers\StandardController;
-use App\Http\Controllers\CqiProjectController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\CqiProjectController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\StandardController;
 
+
+// Home route
 Route::get('/', fn () => view('auth.login'))->name('home');
 
-// Authentication Routes
-Route::prefix('auth')->group(function () {
-    // Login Routes
+// --- AUTHENTICATION ROUTES ---
+Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', fn () => view('auth.login'))->name('login');
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
@@ -33,11 +34,9 @@ Route::prefix('auth')->group(function () {
         return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
     })->name('login.post');
 
-    // Register Routes
     Route::get('/register', fn () => view('auth.register'))->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.post');
 
-    // Logout Route
     Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
@@ -46,33 +45,33 @@ Route::prefix('auth')->group(function () {
     })->name('logout');
 });
 
-// Authenticated Routes
+// --- AUTHENTICATED APPLICATION ROUTES ---
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Resource Routes
+    // --- RESOURCEFUL ROUTES ---
+    // Using Route::resource for simplicity where applicable
     Route::resource('audits', AuditController::class);
     Route::resource('programs', ProgramController::class);
     Route::resource('standards', StandardController::class);
-
-    // Staff Routes
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('/', [StaffController::class, 'index'])->name('index');
-        Route::get('/create', [StaffController::class, 'create'])->name('create');
-        Route::post('/', [StaffController::class, 'store'])->name('store');
-    });
-
-    // CQI Project Routes
-    Route::prefix('cqi-projects')->name('cqi-projects.')->group(function () {
+    
+    // Using a fully defined resource group for Staff
+    Route::resource('staff', StaffController::class);
+    
+    // Expanded CQI Project Routes for clarity
+    Route::prefix('cqi-projects')->name('cqi_projects.')->group(function () {
         Route::get('/', [CqiProjectController::class, 'index'])->name('index');
         Route::get('/create', [CqiProjectController::class, 'create'])->name('create');
         Route::post('/', [CqiProjectController::class, 'store'])->name('store');
-        Route::get('/{cqiProject}', [CqiProjectController::class, 'show'])->name('show');
-        Route::get('/{cqiProject}/edit', [CqiProjectController::class, 'edit'])->name('edit');
-        Route::put('/{cqiProject}', [CqiProjectController::class, 'update'])->name('update');
-        Route::delete('/{cqiProject}', [CqiProjectController::class, 'destroy'])->name('destroy');
+        Route::get('/{cqi_project}', [CqiProjectController::class, 'show'])->name('show');
+        Route::get('/{cqi_project}/edit', [CqiProjectController::class, 'edit'])->name('edit');
+        Route::put('/{cqi_project}', [CqiProjectController::class, 'update'])->name('update');
+        Route::delete('/{cqi_project}', [CqiProjectController::class, 'destroy'])->name('destroy');
     });
+
+
+    // --- CUSTOM ROUTES ---
 
     // Checklist Routes
     Route::prefix('checklists')->name('checklists.')->group(function () {
