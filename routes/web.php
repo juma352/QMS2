@@ -13,66 +13,92 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StandardController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| This file is where you define all of the routes for your application.
+| It's loaded by the RouteServiceProvider and all routes are automatically
+| assigned to the "web" middleware group.
+|
+*/
 
-// Home route
-Route::get('/', fn () => view('auth.login'))->name('home');
+// --- PUBLIC AND AUTHENTICATION ROUTES ---
+// These routes are accessible to everyone, including guests (users who are not logged in).
 
-// --- AUTHENTICATION ROUTES ---
-Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('/login', fn () => view('auth.login'))->name('login');
-    Route::post('/login', function (Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+// The root URL of the site will redirect to the login page.
+Route::get('/', fn () => redirect()->route('login'));
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('dashboard');
-        }
+// Define the routes for displaying the login and registration forms.
+// Naming the login route 'login' is crucial, as this is the default name
+// Laravel's authentication middleware looks for when it needs to redirect an unauthenticated user.
+Route::get('login', fn () => view('auth.login'))->name('login');
+Route::get('register', fn () => view('auth.register'))->name('register');
 
-        return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
-    })->name('login.post');
+// Define the routes that handle the form submissions for login and registration.
+// These use the POST method.
+Route::post('login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-    Route::get('/register', fn () => view('auth.register'))->name('register');
-    Route::post('/register', [RegisterController::class, 'store'])->name('register.post');
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        // After a successful login, redirect the user to their intended destination,
+        // or to the dashboard as a fallback.
+        return redirect()->intended('dashboard');
+    }
 
-    Route::post('/logout', function (Request $request) {
+    // If login fails, redirect back to the previous page with an error message.
+    return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
+})->name('login.post');
+
+Route::post('register', [RegisterController::class, 'store'])->name('register.post');
+
+
+// --- AUTHENTICATED APPLICATION ROUTES ---
+// All routes within this group are protected by the 'auth' middleware.
+// This means a user MUST be logged in to access any of these routes.
+Route::middleware('auth')->group(function () {
+    
+    // The main application dashboard.
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // The logout route is placed inside the 'auth' group because only a logged-in user can log out.
+    // It is named 'logout' and does not have any prefixes.
+    Route::post('logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('home');
+        return redirect('/');
     })->name('logout');
-});
-
-// --- AUTHENTICATED APPLICATION ROUTES ---
-Route::middleware('auth')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // --- RESOURCEFUL ROUTES ---
-    // Using Route::resource for simplicity where applicable
+    // Route::resource() is a convenient way to create all the common routes for a resource
+    // (index, create, store, show, edit, update, destroy).
     Route::resource('audits', AuditController::class);
     Route::resource('programs', ProgramController::class);
     Route::resource('standards', StandardController::class);
-    
-    // Using a fully defined resource group for Staff
     Route::resource('staff', StaffController::class);
     
-    // Expanded CQI Project Routes for clarity
+    // Expanded CQI Project Routes for clarity.
+    // This group defines all routes under the '/cqi-projects' URL.
+    // The name('cqi_projects.') prefix ensures all route names start with 'cqi_projects.'.
     Route::prefix('cqi-projects')->name('cqi_projects.')->group(function () {
-        Route::get('/', [CqiProjectController::class, 'index'])->name('index');
-        Route::get('/create', [CqiProjectController::class, 'create'])->name('create');
-        Route::post('/', [CqiProjectController::class, 'store'])->name('store');
-        Route::get('/{cqi_project}', [CqiProjectController::class, 'show'])->name('show');
-        Route::get('/{cqi_project}/edit', [CqiProjectController::class, 'edit'])->name('edit');
-        Route::put('/{cqi_project}', [CqiProjectController::class, 'update'])->name('update');
-        Route::delete('/{cqi_project}', [CqiProjectController::class, 'destroy'])->name('destroy');
+        Route::get('/', [CqiProjectController::class, 'index'])->name('index'); // Name: cqi_projects.index
+        Route::get('/create', [CqiProjectController::class, 'create'])->name('create'); // Name: cqi_projects.create
+        Route::post('/', [CqiProjectController::class, 'store'])->name('store'); // Name: cqi_projects.store
+        Route::get('/{cqi_project}', [CqiProjectController::class, 'show'])->name('show'); // Name: cqi_projects.show
+        Route::get('/{cqi_project}/edit', [CqiProjectController::class, 'edit'])->name('edit'); // Name: cqi_projects.edit
+        Route::put('/{cqi_project}', [CqiProjectController::class, 'update'])->name('update'); // Name: cqi_projects.update
+        Route::delete('/{cqi_project}', [CqiProjectController::class, 'destroy'])->name('destroy'); // Name: cqi_projects.destroy
     });
 
-
     // --- CUSTOM ROUTES ---
-
+    // These are routes that don't fit the standard resource controller pattern.
+    
     // Checklist Routes
     Route::prefix('checklists')->name('checklists.')->group(function () {
         Route::get('/{checklist:slug}', [ChecklistController::class, 'show'])->name('show');

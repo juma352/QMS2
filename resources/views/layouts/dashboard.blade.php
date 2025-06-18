@@ -220,8 +220,8 @@
                     <i class="fas fa-cog icon"></i><span class="link-text">Settings</span>
                 </a>
             </nav>
-            {{-- CORRECTED LOGOUT ROUTE --}}
-            <form method="POST" action="{{ route('auth.logout') }}" class="logout-form">
+            {{-- CORRECTED LOGOUT ROUTE: Now uses 'logout' which is defined in the routes file --}}
+            <form method="POST" action="{{ route('logout') }}" class="logout-form">
                 @csrf
                 <button type="submit" class="sidebar-logout-btn">
                     <span class="sidebar-link">
@@ -243,8 +243,8 @@
                 <div class="user-menu">
                     <span>{{ Auth::user()->name ?? 'User' }}</span>
                     <span class="text-muted">|</span>
-                    {{-- CORRECTED LOGOUT ROUTE --}}
-                    <form method="POST" action="{{ route('auth.logout') }}" class="d-inline">
+                    {{-- CORRECTED LOGOUT ROUTE: Now uses 'logout' which is defined in the routes file --}}
+                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
                         @csrf
                         <button type="submit" class="logout-btn">Logout</button>
                     </form>
