@@ -99,12 +99,15 @@ Route::middleware('auth')->group(function () {
     // --- CUSTOM ROUTES ---
     // These are routes that don't fit the standard resource controller pattern.
     
-    // Checklist Routes
+    // Checklist Routes - CORRECTED ORDER
     Route::prefix('checklists')->name('checklists.')->group(function () {
-        Route::get('/{checklist:slug}', [ChecklistController::class, 'show'])->name('show');
-        Route::post('/{checklist}', [ChecklistController::class, 'store'])->name('store');
+        // Specific routes like '/results' must come BEFORE wildcard routes like '/{slug}'.
         Route::get('/results', [ChecklistController::class, 'resultsIndex'])->name('results.index');
         Route::get('/results/{submission}', [ChecklistController::class, 'resultsShow'])->name('results.show');
+
+        // Wildcard routes are now last, so they don't incorrectly catch specific URLs.
+        Route::get('/{checklist:slug}', [ChecklistController::class, 'show'])->name('show');
+        Route::post('/{checklist}', [ChecklistController::class, 'store'])->name('store');
     });
 
     // Report Routes
