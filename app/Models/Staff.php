@@ -15,4 +15,10 @@ class Staff extends Model
         'license_document', 'appointment_letter', 'cv',
         'short_course_certificate', 'other_certificate'
     ];
+
+    // Add this relationship
+    public function programs()
+    {
+        return $this->hasMany(Program::class, 'faculty_member_id');
+    }
 }
