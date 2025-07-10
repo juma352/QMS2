@@ -84,7 +84,7 @@
                         <div class="col-md-6">
                             <label for="faculty_member_id" class="form-label fw-medium text-secondary">Faculty Member</label>
                             <select name="faculty_member_id" id="faculty_member_id" class="form-select rounded-3">
-                                <option value="">Select Faculty Member</option>
+                                <option value="">Select Head of Program</option>
                                 @foreach($staff as $member)
                                     <option value="{{ $member->id }}" {{ old('faculty_member_id') == $member->id ? 'selected' : '' }}>
                                         {{ $member->first_name }} {{ $member->last_name }}

@@ -44,7 +44,7 @@
                 <h5 class="mb-3 fw-semibold text-primary">Personnel</h5>
                 <div class="details-grid">
                     <div>
-                        <strong class="text-secondary">Faculty Member</strong>
+                        <strong class="text-secondary">Head of Program</strong>
                         {{-- Correctly access the faculty member's full name --}}
                         <p>{{ $program->facultyMember ? $program->facultyMember->first_name . ' ' . $program->facultyMember->last_name : 'Not Assigned' }}</p>
                     </div>
