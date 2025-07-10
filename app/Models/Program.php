@@ -11,26 +11,29 @@ class Program extends Model
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
      */
     protected $fillable = [
         'school_id',
         'faculty_member_id',
         'program_name',
         'program_abbr',
-        'role',
-        'license_renewal_date',
-        'next_approval_date',
-        'license_document',
-        'approval_document',
-        'certificate',
-        'other_documents'
+        'license_date',
+        'appointment_date',
+    ];
+
+    /**
+     * ✅ ADD THIS PROPERTY.
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'license_date' => 'datetime',
+        'appointment_date' => 'datetime',
     ];
 
     /**
      * Defines the relationship to the School model.
-     * This is the missing method that caused the error.
      */
     public function school()
     {
@@ -42,6 +45,16 @@ class Program extends Model
      */
     public function facultyMember()
     {
+        // Make sure this class name 'Staff' matches your actual model name
         return $this->belongsTo(Staff::class, 'faculty_member_id');
+    }
+
+    /**
+     * Defines the relationship to the ProgramDocument model.
+     */
+    public function documents()
+    {
+        // Make sure this class name 'ProgramDocument' matches your actual model name
+        return $this->hasMany(ProgramDocument::class);
     }
 }

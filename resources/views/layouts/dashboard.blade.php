@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'QMS Dashboard')</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'QMS Dashboard') - Education QMS</title>
+
+    {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    {{-- Alpine.js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         :root {
@@ -31,7 +37,7 @@
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
-            background: var(--content-bg);
+            background-color: var(--content-bg);
             color: var(--text-dark);
             font-size: 15px;
             font-weight: 400;
@@ -40,10 +46,10 @@
         .layout { display: flex; flex-direction: row; min-height: 100vh; }
         .content-wrapper { flex: 1; display: flex; flex-direction: column; }
         .main-content { flex: 1; padding: 2rem; }
-        
+
         /* Top Bar */
         .topbar {
-            background: #ffffff;
+            background-color: #ffffff;
             padding: 0 2rem;
             height: 65px;
             display: flex;
@@ -55,12 +61,10 @@
             z-index: 1000;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        .topbar .title {
+        .topbar .page-title {
             font-size: 1.2rem;
             font-weight: 600;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-dark);
         }
         .toggle-btn {
             background: none;
@@ -68,6 +72,7 @@
             color: var(--text-dark);
             font-size: 1.3rem;
             cursor: pointer;
+            margin-right: 1.5rem;
             transition: color 0.3s ease, transform 0.3s ease;
         }
         .toggle-btn:hover {
@@ -97,16 +102,23 @@
             background: linear-gradient(135deg, #5b21b6, #9333ea);
             transform: translateY(-2px);
         }
-        
+
         /* Sidebar */
         .sidebar {
-            background: var(--sidebar-bg);
+            background-color: var(--sidebar-bg);
             width: 260px;
             padding: 1.5rem 0;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.75rem 1.5rem 1.75rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            white-space: nowrap;
         }
         .sidebar-nav { flex-grow: 1; }
         .sidebar-link {
@@ -117,9 +129,10 @@
             font-size: 0.95rem;
             font-weight: 500;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
         .sidebar-link:hover {
-            background: var(--sidebar-link-hover);
+            background-color: var(--sidebar-link-hover);
             color: #ffffff;
             transform: translateX(5px);
         }
@@ -133,140 +146,164 @@
             width: 28px;
             text-align: center;
             margin-right: 1rem;
+            transition: margin 0.3s ease;
         }
         .sidebar-link .link-text { transition: opacity 0.3s ease; }
-        .sidebar-logout-btn { background: none; border: none; }
-        .sidebar-logout-btn:hover .sidebar-link {
-            background: #be123c;
+        .sidebar-logout {
+            margin-top: auto;
+            padding: 0.5rem 1.75rem;
+        }
+        .sidebar-logout button {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+        .sidebar-logout button:hover .sidebar-link {
+            background-color: #be123c;
             transform: translateX(5px);
         }
-        
+
         /* Collapsed Sidebar */
         .sidebar.collapsed { width: 80px; }
-        .sidebar.collapsed .sidebar-link { justify-content: center; padding: 0.9rem; }
+        .sidebar.collapsed .sidebar-header { padding-left: 0; padding-right: 0; text-align: center; font-size: 1rem;}
+        .sidebar.collapsed .sidebar-header .full-text { display: none; }
+        .sidebar.collapsed .sidebar-link { justify-content: center; padding-left: 0; padding-right: 0; }
         .sidebar.collapsed .icon { margin-right: 0; }
         .sidebar.collapsed .link-text { opacity: 0; width: 0; overflow: hidden; }
-        
+        .sidebar.collapsed .sidebar-logout { padding: 0.5rem 0;}
+
         /* Footer */
         footer {
             text-align: center;
             padding: 1.5rem;
-            background: #ffffff;
+            background-color: #ffffff;
             border-top: 1px solid var(--border-color);
             font-size: 0.9rem;
             color: var(--text-light);
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
             body { font-size: 14px; }
             .layout { flex-direction: column; }
             .sidebar {
-                width: 100%;
-                min-height: auto;
-                position: sticky;
+                position: fixed;
+                left: -260px;
                 top: 0;
-                z-index: 1001;
-                flex-direction: row;
-                padding: 0.5rem;
-                justify-content: center;
+                height: 100vh;
+                z-index: 1002;
+                transition: left 0.3s ease;
             }
-            .sidebar-nav { display: flex; flex-direction: row; gap: 0.5rem; }
-            .sidebar.collapsed { width: 100%; }
-            .sidebar-link { flex-direction: column; padding: 0.7rem; font-size: 0.75rem; border-radius: 8px; }
-            .sidebar-link .icon { margin: 0 0 0.3rem 0; }
+            .sidebar.open { left: 0; }
+            .sidebar.collapsed { width: 260px; /* No collapsed state on mobile */ }
+            .sidebar.collapsed .link-text { opacity: 1; width: auto; }
+            .sidebar.collapsed .icon { margin-right: 1rem; }
             .main-content { padding: 1rem; }
             .topbar { padding: 0 1rem; height: 60px; }
             .logout-form { display: none; }
+            .page-title { font-size: 1rem; }
         }
     </style>
 </head>
-<body x-data="{ sidebarOpen: window.innerWidth > 768 }">
-    <div class="layout">
-        <div class="sidebar" :class="sidebarOpen ? '' : 'collapsed'">
-            <nav class="sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->is('dashboard*') ? 'active' : '' }}">
-                    <i class="fas fa-home icon"></i><span class="link-text">Dashboard</span>
-                </a>
-                <a href="{{ route('programs.index') }}" class="sidebar-link {{ request()->is('programs*') ? 'active' : '' }}">
-                    <i class="fas fa-book icon"></i><span class="link-text">Programs</span>
-                </a>
-                <a href="{{ route('staff.index') }}" class="sidebar-link {{ request()->is('staff*') ? 'active' : '' }}">
-                    <i class="fas fa-user-tie icon"></i><span class="link-text">Education Staff</span>
-                </a>
-                <a href="{{ route('standards.index') }}" class="sidebar-link {{ request()->is('standards*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt icon"></i><span class="link-text">Standards</span>
-                </a>
-                <a href="{{ route('cqi_projects.index') }}" class="sidebar-link {{ request()->is('cqi-projects*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-line icon"></i><span class="link-text">CQI Projects</span>
-                </a>
-                <a href="{{ route('audits.index', ['type' => 'Internal']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'Internal' ? 'active' : '' }}">
-                    <i class="fas fa-search icon"></i><span class="link-text">Internal Audit</span>
-                </a>
-                <a href="{{ route('audits.index', ['type' => 'External']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'External' ? 'active' : '' }}">
-                    <i class="fas fa-building icon"></i><span class="link-text">External Audits</span>
-                </a>
-                <a href="{{ route('checklists.results.index') }}" class="sidebar-link {{ request()->is('checklists/results*') ? 'active' : '' }}">
-                    <i class="fas fa-clipboard-check icon"></i><span class="link-text">My Submissions</span>
-                </a>
-                <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->is('reports*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-pie icon"></i><span class="link-text">Reports</span>
-                </a>
-                
-                {{-- CORRECTED USERS LINK: Now visible only to admins and points to the correct route. --}}
-                @if(Auth::user() && Auth::user()->isAdmin())
-                    <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->is('users*') ? 'active' : '' }}">
+<body x-data="{ sidebarOpen: window.innerWidth > 768 }" @resize.window="sidebarOpen = window.innerWidth > 768">
+<div class="layout">
+    {{-- Use x-show on mobile to keep it in the DOM but hidden --}}
+    <aside class="sidebar" :class="sidebarOpen ? 'open' : 'collapsed'">
+        <div class="sidebar-header">
+            <span class="full-text">Education QMS</span>
+            <span x-show="!sidebarOpen" title="Education QMS">QMS</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->is('dashboard*') ? 'active' : '' }}" title="Dashboard">
+                <i class="fas fa-home icon"></i><span class="link-text">Dashboard</span>
+            </a>
+            <a href="{{ route('programs.index') }}" class="sidebar-link {{ request()->is('programs*') ? 'active' : '' }}" title="Programs">
+                <i class="fas fa-book icon"></i><span class="link-text">Programs</span>
+            </a>
+            <a href="{{ route('staff.index') }}" class="sidebar-link {{ request()->is('staff*') ? 'active' : '' }}" title="Education Staff">
+                <i class="fas fa-user-tie icon"></i><span class="link-text">Education Staff</span>
+            </a>
+            <a href="{{ route('standards.index') }}" class="sidebar-link {{ request()->is('standards*') ? 'active' : '' }}" title="Standards">
+                <i class="fas fa-file-alt icon"></i><span class="link-text">Standards</span>
+            </a>
+            <a href="{{ route('cqi_projects.index') }}" class="sidebar-link {{ request()->is('cqi-projects*') ? 'active' : '' }}" title="CQI Projects">
+                <i class="fas fa-chart-line icon"></i><span class="link-text">CQI Projects</span>
+            </a>
+            <a href="{{ route('audits.index', ['type' => 'Internal']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'Internal' ? 'active' : '' }}" title="Internal Audit">
+                <i class="fas fa-search icon"></i><span class="link-text">Internal Audit</span>
+            </a>
+            <a href="{{ route('audits.index', ['type' => 'External']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'External' ? 'active' : '' }}" title="External Audits">
+                <i class="fas fa-building icon"></i><span class="link-text">External Audits</span>
+            </a>
+            <a href="{{ route('checklists.results.index') }}" class="sidebar-link {{ request()->is('checklists/results*') ? 'active' : '' }}" title="My Submissions">
+                <i class="fas fa-clipboard-check icon"></i><span class="link-text">My Submissions</span>
+            </a>
+            <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->is('reports*') ? 'active' : '' }}" title="Reports">
+                <i class="fas fa-chart-pie icon"></i><span class="link-text">Reports</span>
+            </a>
+
+            @auth
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->is('users*') ? 'active' : '' }}" title="Users">
                         <i class="fas fa-users-cog icon"></i><span class="link-text">Users</span>
                     </a>
                 @endif
+            @endauth
 
-                <a href="#" class="sidebar-link">
-                    <i class="fas fa-cog icon"></i><span class="link-text">Settings</span>
-                </a>
-            </nav>
-            {{-- CORRECTED LOGOUT ROUTE: Uses 'logout' which is defined in the routes file. --}}
-            <form method="POST" action="{{ route('logout') }}" class="logout-form">
+            <a href="#" class="sidebar-link" title="Settings">
+                <i class="fas fa-cog icon"></i><span class="link-text">Settings</span>
+            </a>
+        </nav>
+        <div class="sidebar-logout">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="sidebar-logout-btn">
-                    <span class="sidebar-link">
-                        <i class="fas fa-sign-out-alt icon"></i>
-                        <span class="link-text">Logout</span>
-                    </span>
+                <button type="submit" title="Logout">
+                        <span class="sidebar-link">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span class="link-text">Logout</span>
+                        </span>
                 </button>
             </form>
         </div>
+    </aside>
 
-        <div class="content-wrapper">
-            <div class="topbar">
-                <div style="display: flex; align-items: center;">
-                    <button class="toggle-btn" @click="sidebarOpen = !sidebarOpen" x-bind:title="sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <span class="title">EDUCATION QMS</span>
-                </div>
+    <div class="content-wrapper">
+        <header class="topbar">
+            <div class="d-flex align-items-center">
+                <button class="toggle-btn" @click="sidebarOpen = !sidebarOpen" :title="sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="page-title">@yield('title', 'Dashboard')</span>
+            </div>
+            @auth
                 <div class="user-menu">
-                    <span>{{ Auth::user()->name ?? 'User' }}</span>
-                    <span class="text-muted">|</span>
-                    {{-- CORRECTED LOGOUT ROUTE: Uses 'logout' which is defined in the routes file. --}}
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    <span>{{ Auth::user()->name }}</span>
+                    <span class="text-muted d-none d-md-inline">|</span>
+                    <form method="POST" action="{{ route('logout') }}" class="d-none d-md-inline">
                         @csrf
                         <button type="submit" class="logout-btn">Logout</button>
                     </form>
                 </div>
-            </div>
+            @endauth
+        </header>
 
-            <div class="main-content">
-                @yield('content')
-            </div>
-            
-            <footer>
-                © {{ date('Y') }} AIC Kijabe Hospital - Education QMS. All rights reserved.
-            </footer>
-        </div>
+        <main class="main-content">
+            @yield('content')
+        </main>
+
+        <footer>
+            &copy; {{ date('Y') }} AIC Kijabe Hospital - Education QMS. All rights reserved.
+        </footer>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @yield('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- CORRECTED: @stack allows multiple scripts to be pushed from child views --}}
+@stack('scripts')
 </body>
 </html>
