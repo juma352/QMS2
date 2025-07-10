@@ -3,58 +3,123 @@
 @section('title', 'Programs List')
 
 @section('content')
-<h2 style="font-weight: 600;">Programs</h2>
+    <div class="container-fluid py-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between p-3">
+                {{-- Card Header: Title and Add Button --}}
+                <h2 class="h5 mb-0 fw-semibold">All Programs</h2>
+                <a href="{{ route('programs.create') }}" class="btn btn-outline-light btn-sm fw-medium">
+                    <i class="fas fa-plus me-2"></i>Add New Program
+                </a>
+            </div>
 
-@if (session('success'))
-    <div style="color: green; margin-bottom: 1rem;">{{ session('success') }}</div>
-@endif
+            <div class="card-body">
+                {{-- Success Message Alert --}}
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-<a href="{{ route('programs.create') }}" style="background: #159ed5; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; font-size: 0.9rem;">
-    <i class="fas fa-plus"></i> Add Program
-</a>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Program Name</th>
+                            <th>Coordinator</th>
+                            <th>Subdivision</th>
+                            <th>Renewal Date</th>
+                            <th>Approval Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @forelse ($programs as $program)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ $program->program_name }}</div>
+                                    <small class="text-muted">{{ $program->program_abbr }}</small>
+                                </td>
+                                <td>
+                                    {{-- Correctly display the faculty member's name --}}
+                                    {{ $program->facultyMember ? $program->facultyMember->first_name . ' ' . $program->facultyMember->last_name : 'N/A' }}
+                                </td>
+                                <td>
+                                    {{-- Correctly display the subdivision's name --}}
+                                    {{ $program->school?->subdivision?->name ?? 'N/A' }}
+                                </td>
+                                <td>
+                                    {{-- Format dates for readability --}}
+                                    {{ $program->license_renewal_date ? \Carbon\Carbon::parse($program->license_renewal_date)->format('d M, Y') : 'N/A' }}
+                                </td>
+                                <td>
+                                    {{ $program->next_approval_date ? \Carbon\Carbon::parse($program->next_approval_date)->format('d M, Y') : 'N/A' }}
+                                </td>
+                                <td class="text-end">
+                                    {{-- Action Buttons --}}
+                                    <div class="btn-group">
+                                        <a href="{{ route('programs.show', $program->id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('programs.edit', $program->id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ route('programs.destroy', $program->id) }}" method="POST" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No programs found.</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 
-<table style="width: 100%; margin-top: 1rem; border-collapse: collapse; font-size: 0.9rem;">
-    <thead style="background: #159ed5; color: white;">
-        <tr>
-            <th style="padding: 0.6rem;">#</th>
-            <th style="padding: 0.6rem;">Name</th>
-            <th style="padding: 0.6rem;">Abbr</th>
-            <th style="padding: 0.6rem;">Coordinator</th>
-            <th style="padding: 0.6rem;">Subdivision</th>
-            <th style="padding: 0.6rem;">Renewal</th>
-            <th style="padding: 0.6rem;">Approval</th>
-            <th style="padding: 0.6rem;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse ($programs as $program)
-            <tr style="background: white; border-bottom: 1px solid #eee;">
-                <td style="padding: 0.6rem;">{{ $program->id }}</td>
-                <td style="padding: 0.6rem;">{{ $program->program_name }}</td>
-                <td style="padding: 0.6rem;">{{ $program->program_abbr }}</td>
-                <td style="padding: 0.6rem;">{{ $program->faculty_member }}</td>
-                <td style="padding: 0.6rem;">{{ $program->subdivision }}</td>
-                <td style="padding: 0.6rem;">
-                    {{ $program->license_renewal_date }}
-                </td>
-                <td style="padding: 0.6rem;">
-                    {{ $program->next_approval_date }}
-                </td>
-                <td style="padding: 0.6rem; white-space: nowrap;">
-                    <a href="{{ route('programs.show', $program->id) }}" style="color: #159ed5; text-decoration: none; margin-right: 0.4rem;">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                    <a href="{{ route('programs.edit', $program->id) }}" style="color: #F4A300; text-decoration: none; margin-right: 0.4rem;">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="8" style="padding: 1rem; text-align: center;">No programs found.</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
+@section('styles')
+    <style>
+        .card {
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            border-bottom: none;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+        .table {
+            font-size: 0.9rem;
+        }
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+        .table tbody td {
+            vertical-align: middle;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .btn-group .btn {
+            border-radius: 0.3rem; /* Uniform radius */
+        }
+        .btn-group .btn:not(:last-child) {
+            margin-right: 0.4rem;
+        }
+    </style>
 @endsection

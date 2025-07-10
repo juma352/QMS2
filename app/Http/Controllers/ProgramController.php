@@ -77,10 +77,12 @@ class ProgramController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Program $program)
+     public function show(Program $program)
     {
-        // Eager load for display
+        // Use ->load() to fetch the relationships for the given program.
+        // 'school.subdivision' tells Laravel to get the school, AND the school's subdivision.
         $program->load('school.subdivision', 'facultyMember');
+
         return view('programs.show', compact('program'));
     }
 
