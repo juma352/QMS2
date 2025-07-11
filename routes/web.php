@@ -63,7 +63,7 @@ Route::post('register', [RegisterController::class, 'store'])->name('register.po
 // All routes within this group are protected by the 'auth' middleware.
 // This means a user MUST be logged in to access any of these routes.
 Route::middleware('auth')->group(function () {
-    
+
     // The main application dashboard.
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('programs', ProgramController::class);
     Route::resource('standards', StandardController::class);
     Route::resource('staff', StaffController::class);
-    
+
     // Expanded CQI Project Routes for clarity.
     // This group defines all routes under the '/cqi-projects' URL.
     // The name('cqi_projects.') prefix ensures all route names start with 'cqi_projects.'.
@@ -99,14 +99,16 @@ Route::middleware('auth')->group(function () {
 
     // --- CUSTOM ROUTES ---
     // These are routes that don't fit the standard resource controller pattern.
-    
-    // Checklist Routes - CORRECTED ORDER
+
+    // Checklist Routes
     Route::prefix('checklists')->name('checklists.')->group(function () {
-        // Specific routes like '/results' must come BEFORE wildcard routes like '/{slug}'.
+        // Specific routes come before wildcard routes
         Route::get('/results', [ChecklistController::class, 'resultsIndex'])->name('results.index');
         Route::get('/results/{submission}', [ChecklistController::class, 'resultsShow'])->name('results.show');
+        Route::get('/results/{submission}/edit', [ChecklistController::class, 'edit'])->name('results.edit');
+        Route::put('/results/{submission}', [ChecklistController::class, 'update'])->name('results.update');
 
-        // Wildcard routes are now last, so they don't incorrectly catch specific URLs.
+        // Wildcard routes last to avoid catching specific URLs
         Route::get('/{checklist:slug}', [ChecklistController::class, 'show'])->name('show');
         Route::post('/{checklist}', [ChecklistController::class, 'store'])->name('store');
     });

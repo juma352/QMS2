@@ -30,6 +30,60 @@ class ChecklistController extends Controller
         return view('checklists.show', compact('checklist', 'itemsBySection'));
     }
 
+
+    /**
+     * Show the form for editing a checklist submission.
+     */
+    public function edit(ChecklistSubmission $submission)
+    {
+        // Authorization: Ensure the logged-in user owns this submission.
+        if (Auth::id() !== $submission->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $submission->load(['checklist', 'answers.checklistItem']);
+        return view('checklists.results_show', compact('submission')); // Reuse the same view
+    }
+
+    /**
+     * Update an existing checklist submission.
+     */
+    public function update(Request $request, ChecklistSubmission $submission)
+    {
+        // Authorization: Ensure the logged-in user owns this submission.
+        if (Auth::id() !== $submission->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        Log::info('--- Checklist Submission Update Start ---');
+        $validated = $request->validate([
+            'ratings' => 'required|array',
+            'ratings.*' => 'required|integer|between:1,7',
+            'comments' => 'nullable|array',
+            'comments.*' => 'nullable|string',
+        ]);
+        Log::info('Validation Passed.');
+
+        try {
+            DB::transaction(function () use ($validated, $submission) {
+                foreach ($validated['ratings'] as $itemId => $rating) {
+                    $submission->answers()->where('checklist_item_id', $itemId)->update([
+                        'rating' => $rating,
+                        'comments' => $validated['comments'][$itemId] ?? null,
+                    ]);
+                }
+                $submission->update(['status' => 'Completed']);
+            });
+        } catch (\Exception $e) {
+            Log::error('Checklist Submission Update Failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', '\Error updating checklist.')->withInput();
+        }
+
+        Log::info('--- Checklist Submission Update End: Success ---');
+        return redirect()->route('checklists.results.show', $submission->id)
+            ->with('message', 'Submission updated successfully!');
+    }
+
     /**
      * Store a new checklist submission.
      */
@@ -65,7 +119,7 @@ class ChecklistController extends Controller
             Log::error('Checklist Submission Failed: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error saving checklist.')->withInput();
         }
-        
+
         Log::info('--- Checklist Submission End: Success ---');
         return redirect()->route('dashboard')->with('message', $checklist->title . ' submitted successfully!');
     }
