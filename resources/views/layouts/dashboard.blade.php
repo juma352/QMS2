@@ -301,9 +301,72 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Global Date Modal for Reports -->
+<div class="modal fade" id="dateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6d28d9, #a855f7); color: #ffffff; border-bottom: none;">
+                <h5 class="modal-title" id="modalLabel">Generate Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dateForm" method="GET" action="">
+                    <div class="mb-3">
+                        <label class="form-label">From</label>
+                        <input type="date" name="from" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">To</label>
+                        <input type="date" name="to" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitForm()" style="background: #14b8a6; border: none;">Run</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-{{-- CORRECTED: @stack allows multiple scripts to be pushed from child views --}}
-@stack('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Inline the openModal and submitForm functions directly --}}
+    <script>
+        // Global openModal function for reports
+        window.openModal = function(name, route) {
+            const modalLabel = document.getElementById('modalLabel');
+            const dateForm = document.getElementById('dateForm');
+            
+            if (modalLabel && dateForm) {
+                modalLabel.textContent = `Generate ${name}`;
+                dateForm.action = route;
+                
+                // Show the modal
+                const dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
+                dateModal.show();
+            } else {
+                console.error('Modal elements not found. Make sure the modal HTML is included.');
+            }
+        };
+
+        // Global submitForm function for reports
+        window.submitForm = function() {
+            const dateForm = document.getElementById('dateForm');
+            if (dateForm) {
+                const from = dateForm.querySelector('input[name="from"]').value;
+                const to = dateForm.querySelector('input[name="to"]').value;
+                
+                if (from && to) {
+                    dateForm.submit();
+                } else {
+                    alert('Please select both "From" and "To" dates.');
+                }
+            }
+        };
+    </script>
+
+    {{-- CORRECTED: @stack allows multiple scripts to be pushed from child views --}}
+    @stack('scripts')
 </body>
 </html>

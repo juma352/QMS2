@@ -25,12 +25,15 @@ class ProgramStructureSeeder extends Seeder
         // KCHS Schools & Programs
         $nursing = School::create(['subdivision_id' => $kchs->id, 'name' => 'Nursing']);
         Program::create(['school_id' => $nursing->id, 'program_name' => 'KRNA']);
-        Program::create(['school_id' => $nursing->id, 'program_name' => 'KRPON']);
+        Program::create(['school_id' => $nursing->id, 'program_name' => 'KRCHN']);
+        Program::create(['school_id' => $nursing->id, 'program_name' => 'CCN']);
         // ... add other Nursing programs
 
         $clinical = School::create(['subdivision_id' => $kchs->id, 'name' => 'Clinical']);
         Program::create(['school_id' => $clinical->id, 'program_name' => 'KCMS']);
         Program::create(['school_id' => $clinical->id, 'program_name' => 'PECCCO']);
+        Program::create(['school_id' => $clinical->id, 'program_name' => 'ECCCO']);
+        Program::create(['school_id' => $clinical->id, 'program_name' => 'FHCO']);
         // ... add other Clinical programs
 
         $allied = School::create(['subdivision_id' => $kchs->id, 'name' => 'Allied Health']);

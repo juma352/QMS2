@@ -27,7 +27,8 @@ class ChecklistController extends Controller
         }
 
         $itemsBySection = $checklist->items->groupBy('section');
-        return view('checklists.show', compact('checklist', 'itemsBySection'));
+        $subdivisions = \App\Models\Subdivision::all();
+        return view('checklists.show', compact('checklist', 'itemsBySection', 'subdivisions'));
     }
 
 
@@ -89,13 +90,13 @@ class ChecklistController extends Controller
      */
     public function store(Request $request, Checklist $checklist)
     {
-        // ... (Your store method with logging remains exactly the same)
         Log::info('--- Checklist Submission Start ---');
         $validated = $request->validate([
             'ratings' => 'required|array',
             'ratings.*' => 'required|integer|between:1,7',
             'comments' => 'nullable|array',
             'comments.*' => 'nullable|string',
+            'subdivision_id' => 'required|exists:subdivisions,id',
         ]);
         Log::info('Validation Passed.');
 
@@ -104,6 +105,7 @@ class ChecklistController extends Controller
                 $submission = ChecklistSubmission::create([
                     'checklist_id' => $checklist->id,
                     'user_id' => Auth::id(),
+                    'subdivision_id' => $validated['subdivision_id'],
                     'status' => 'Completed',
                 ]);
 
@@ -127,14 +129,20 @@ class ChecklistController extends Controller
     /**
      * NEW: Display a list of the user's completed checklist submissions.
      */
-    public function resultsIndex()
+    public function resultsIndex(Request $request)
     {
-        $submissions = ChecklistSubmission::where('user_id', Auth::id())
-            ->with('checklist') // Eager load the checklist title
-            ->latest()
-            ->paginate(10);
+        $query = ChecklistSubmission::where('user_id', Auth::id())
+            ->with(['checklist', 'subdivision']);
 
-        return view('checklists.results_index', compact('submissions'));
+        // Filter by subdivision if provided
+        if ($request->has('subdivision') && $request->subdivision) {
+            $query->where('subdivision_id', $request->subdivision);
+        }
+
+        $submissions = $query->latest()->paginate(10);
+        $subdivisions = \App\Models\Subdivision::all();
+
+        return view('checklists.results_index', compact('submissions', 'subdivisions'));
     }
 
     /**

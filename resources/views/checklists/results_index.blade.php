@@ -20,11 +20,28 @@
             </div>
         @endif
 
+        <div class="mb-4">
+            <form method="GET" action="{{ route('checklists.results.index') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="subdivision" class="form-label">Filter by Division</label>
+                    <select name="subdivision" id="subdivision" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Divisions</option>
+                        @foreach($subdivisions as $subdivision)
+                            <option value="{{ $subdivision->id }}" {{ request('subdivision') == $subdivision->id ? 'selected' : '' }}>
+                                {{ $subdivision->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
                         <th scope="col">Checklist Title</th>
+                        <th scope="col">Division</th>
                         <th scope="col">Status</th>
                         <th scope="col">Submitted On</th>
                         <th scope="col" class="text-center">Actions</th>
@@ -34,6 +51,9 @@
                     @forelse ($submissions as $submission)
                         <tr>
                             <td class="fw-medium">{{ $submission->checklist->title }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ $submission->subdivision->name ?? 'N/A' }}</span>
+                            </td>
                             <td>
                                 <span class="badge text-capitalize bg-{{ $submission->status == 'complete' ? 'success' : 'secondary' }}">
                                     {{ $submission->status }}
@@ -48,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-4">
+                            <td colspan="5" class="text-center text-muted py-4">
                                 <i class="fas fa-folder-open fa-2x mb-2"></i>
                                 <p class="mb-0">You have not made any checklist submissions yet.</p>
                             </td>

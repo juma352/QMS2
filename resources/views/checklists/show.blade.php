@@ -10,6 +10,22 @@
     <div class="card-body p-4">
         <form method="POST" action="{{ route('checklists.store', $checklist->id) }}">
             @csrf
+            
+            <div class="mb-4">
+                <label for="subdivision_id" class="form-label fw-semibold">Select Division</label>
+                <select name="subdivision_id" id="subdivision_id" class="form-select" required>
+                    <option value="">Choose a division...</option>
+                    @foreach($subdivisions as $subdivision)
+                        <option value="{{ $subdivision->id }}" {{ old('subdivision_id') == $subdivision->id ? 'selected' : '' }}>
+                            {{ $subdivision->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('subdivision_id')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             @foreach($itemsBySection as $section => $items)
                 <fieldset class="mb-5">
                     <legend class="h6 fw-bold border-bottom pb-2 mb-3"><i class="fas fa-bookmark me-2"></i>{{ $section }}</legend>

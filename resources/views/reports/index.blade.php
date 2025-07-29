@@ -263,9 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const type = document.getElementById('type');
     const apply = document.getElementById('apply');
     const cards = document.querySelectorAll('.card-wrapper');
-    const dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
-    const dateForm = document.getElementById('dateForm');
-    const modalLabel = document.getElementById('modalLabel');
 
     function applyFilters() {
         const q = search.value.toLowerCase();
@@ -280,22 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
     apply.addEventListener('click', applyFilters);
     search.addEventListener('input', applyFilters);
     type.addEventListener('change', applyFilters);
-
-    window.openModal = (name, route) => {
-        modalLabel.textContent = `Generate ${name}`;
-        dateForm.action = route;
-        dateModal.show();
-    };
-
-    window.submitForm = () => {
-        const from = dateForm.querySelector('input[name="from"]').value;
-        const to = dateForm.querySelector('input[name="to"]').value;
-        if (from && to) {
-            dateForm.submit();
-        } else {
-            alert('Please select both "From" and "To" dates.');
-        }
-    };
 });
 </script>
 @endsection

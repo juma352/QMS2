@@ -110,6 +110,7 @@
 
         <div class="submission-info">
             <span>Submitted on: <strong>{{ $submission->created_at->format('F d, Y \a\t h:i A') }}</strong></span>
+            <span>Division: <strong class="text-info">{{ $submission->subdivision->name ?? 'N/A' }}</strong></span>
             <span>Status: <strong class="text-capitalize">{{ $submission->status }}</strong></span>
         </div>
 
