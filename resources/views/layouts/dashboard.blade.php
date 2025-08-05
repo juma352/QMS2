@@ -239,7 +239,9 @@
             <a href="{{ route('audits.index', ['type' => 'External']) }}" class="sidebar-link {{ request()->is('audits*') && request('type') == 'External' ? 'active' : '' }}" title="External Audits">
                 <i class="fas fa-building icon"></i><span class="link-text">External Audits</span>
             </a>
-            <a href="{{ route('checklists.results.index') }}" class="sidebar-link {{ request()->is('checklists/results*') ? 'active' : '' }}" title="My Submissions">
+            <a href="{{ route('checklists.index') }}" class="sidebar-link {{ request()->is('checklists*') ? 'active' : '' }}" title="Checklists">
+                <i class="fas fa-clipboard icon"></i><span class="link-text">Checklists</span>
+            <a href="{{ route('checklists.departments') }}" class="sidebar-link {{ request()->is('checklists/departments*') ? 'active' : '' }}" title="My Submissions">
                 <i class="fas fa-clipboard-check icon"></i><span class="link-text">My Submissions</span>
             </a>
             <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->is('reports*') ? 'active' : '' }}" title="Reports">

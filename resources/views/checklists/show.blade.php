@@ -12,16 +12,9 @@
             @csrf
             
             <div class="mb-4">
-                <label for="subdivision_id" class="form-label fw-semibold">Select Division</label>
-                <select name="subdivision_id" id="subdivision_id" class="form-select" required>
-                    <option value="">Choose a division...</option>
-                    @foreach($subdivisions as $subdivision)
-                        <option value="{{ $subdivision->id }}" {{ old('subdivision_id') == $subdivision->id ? 'selected' : '' }}>
-                            {{ $subdivision->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('subdivision_id')
+                <label for="department_name" class="form-label fw-semibold">Department Name</label>
+                <input type="text" name="department_name" id="department_name" class="form-control" required>
+                @error('department_name')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
             </div>
@@ -42,6 +35,11 @@
                                 <option value="6">6</option>
                                 <option value="7">7 (Excellent)</option>
                             </select>
+                            <label for="comments-{{$item->id}}" class="form-label mt-2">Your Comments:</label>
+                            <textarea name="comments[{{ $item->id }}]" id="comments-{{$item->id}}" class="form-control" rows="3"></textarea>
+                            @error('comments.'.$item->id)   
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     @endforeach
                 </fieldset>

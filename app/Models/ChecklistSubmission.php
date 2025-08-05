@@ -16,7 +16,7 @@ class ChecklistSubmission extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['checklist_id', 'user_id', 'subdivision_id', 'status'];
+    protected $fillable = ['checklist_id', 'user_id', 'department_name', 'status'];
 
     /**
      * Defines the relationship that a Submission belongs to a single Checklist.
@@ -41,13 +41,5 @@ class ChecklistSubmission extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Defines the relationship that a Submission belongs to a Subdivision.
-     */
-    public function subdivision(): BelongsTo
-    {
-        return $this->belongsTo(Subdivision::class);
     }
 }

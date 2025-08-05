@@ -110,7 +110,7 @@
 
         <div class="submission-info">
             <span>Submitted on: <strong>{{ $submission->created_at->format('F d, Y \a\t h:i A') }}</strong></span>
-            <span>Division: <strong class="text-info">{{ $submission->subdivision->name ?? 'N/A' }}</strong></span>
+            <span>Department: <strong class="text-info">{{ $submission->department_name ?? 'N/A' }}</strong></span>
             <span>Status: <strong class="text-capitalize">{{ $submission->status }}</strong></span>
         </div>
 
@@ -121,6 +121,15 @@
         <form method="POST" action="{{ route('checklists.results.update', $submission->id) }}">
             @csrf
             @method('PUT')
+            
+            <div class="mb-4">
+                <label for="department_name" class="form-label fw-semibold">Department Name</label>
+                <input type="text" name="department_name" id="department_name" class="form-control" value="{{ $submission->department_name }}" required>
+                @error('department_name')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             @foreach($submission->answers->groupBy('checklistItem.section') as $section => $answers)
                 <fieldset class="section-fieldset">
                     <legend class="section-legend">{{ $section }}</legend>
@@ -160,6 +169,9 @@
                 <button type="submit" class="btn-action btn-primary">
                     <i class="fas fa-save"></i> Save Changes
                 </button>
+                <a href="{{ route('checklists.results.print', $submission->id) }}" target="_blank" class="btn-action btn-secondary ms-2">
+                    <i class="fas fa-print"></i> Print Results
+                </a>
             </div>
         </form>
     </div>

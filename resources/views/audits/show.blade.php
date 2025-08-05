@@ -50,12 +50,7 @@
                 
                 <hr class="my-4">
                 
-                <h5 class="text-primary fw-semibold mb-3">Findings & Actions</h5>
-                <h6>Findings:</h6>
-                <p class="text-muted" style="white-space: pre-wrap;">{{ $audit->findings ?? 'No findings recorded.' }}</p>
-
-                <h6 class="mt-3">Corrective Actions:</h6>
-                <p class="text-muted" style="white-space: pre-wrap;">{{ $audit->corrective_actions ?? 'No corrective actions recorded.' }}</p>
+               
 
             </div>
 

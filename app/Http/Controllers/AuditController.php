@@ -47,8 +47,6 @@ class AuditController extends Controller
             'status' => 'required|string|max:255',
             'date_conducted' => 'nullable|date',
             'next_audit_date' => 'nullable|date',
-            'findings' => 'nullable|string',
-            'corrective_actions' => 'nullable|string',
             'audit_report' => 'nullable|file|mimes:pdf,docx,jpg,png|max:5120',
             'supporting_documents.*' => 'nullable|file|mimes:pdf,docx,jpg,png|max:5120',
         ]);
@@ -67,10 +65,10 @@ class AuditController extends Controller
             $data['supporting_documents_paths'] = $paths;
         }
 
-        Audit::create($data);
+        $audit = Audit::create($data);
 
-        return redirect()->route('audits.index', ['type' => $request->audit_type])
-                         ->with('message', 'Audit added successfully.');
+        return redirect()->route('audits.checklist.create', $audit->id)
+                         ->with('message', 'Audit added successfully. Please create your dynamic checklist.');
     }
 
     public function show(Audit $audit)

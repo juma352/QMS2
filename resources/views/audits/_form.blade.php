@@ -59,19 +59,7 @@
         <input type="date" name="next_audit_date" id="next_audit_date" class="form-control" value="{{ old('next_audit_date', isset($audit->next_audit_date) ? $audit->next_audit_date->format('Y-m-d') : '') }}">
     </div>
 
-    {{-- Row 5: Findings --}}
-    <div class="col-12">
-        <label for="findings" class="form-label">Findings</label>
-        <textarea name="findings" id="findings" class="form-control" rows="4">{{ old('findings', $audit->findings ?? '') }}</textarea>
-    </div>
-
-    {{-- Row 6: Corrective Actions --}}
-    <div class="col-12">
-        <label for="corrective_actions" class="form-label">Corrective Actions</label>
-        <textarea name="corrective_actions" id="corrective_actions" class="form-control" rows="4">{{ old('corrective_actions', $audit->corrective_actions ?? '') }}</textarea>
-    </div>
-
-    {{-- Row 7: File Uploads --}}
+    {{-- Row 5: File Uploads --}}
     <div class="col-md-6">
         <label for="audit_report" class="form-label">Audit Report</label>
         <input type="file" name="audit_report" id="audit_report" class="form-control">

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Audit extends Model
 {
@@ -24,8 +26,6 @@ class Audit extends Model
         'status',
         'date_conducted',
         'next_audit_date',
-        'findings',
-        'corrective_actions',
         'audit_report_path',
         'supporting_documents_paths',
     ];
@@ -47,5 +47,31 @@ class Audit extends Model
     public function standard()
     {
         return $this->belongsTo(Standard::class);
+    }
+
+    /**
+     * Get the checklist associated with this audit.
+     */
+    public function checklist()
+    {
+        return $this->hasOne(Checklist::class);
+    }
+
+    /**
+     * Get the audit checklists for this audit.
+     */
+    public function auditChecklists(): HasMany
+    {
+        return $this->hasMany(AuditChecklist::class);
+    }
+
+    /**
+     * Get the associated checklist through audit_checklists pivot.
+     */
+    public function checklists()
+    {
+        return $this->belongsToMany(Checklist::class, 'audit_checklists')
+                    ->withPivot('generated_by', 'generated_at')
+                    ->withTimestamps();
     }
 }

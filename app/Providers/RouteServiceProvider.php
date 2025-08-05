@@ -33,9 +33,15 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    // Removed incorrect 'use' statements inside the class
+
     public function boot()
     {
         $this->configureRateLimiting();
+
+        \Illuminate\Support\Facades\Route::bind('checklist', function ($value) {
+            return \App\Models\Checklist::where('slug', $value)->firstOrFail();
+        });
 
         $this->routes(function () {
             Route::prefix('api')
@@ -46,6 +52,11 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
+
+            // Load dynamic checklist routes
+            Route::middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/web_dynamic_checklist.php'));
         });
     }
 

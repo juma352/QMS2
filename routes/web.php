@@ -102,15 +102,20 @@ Route::middleware('auth')->group(function () {
 
     // Checklist Routes
     Route::prefix('checklists')->name('checklists.')->group(function () {
-        // Specific routes come before wildcard routes
+        // Main index route for all checklists
+        Route::get('/checklists', [ChecklistController::class, 'checklistsIndex'])->name('index');
+        
+        // Show individual checklist
+        Route::get('/checklists/{checklist}', [ChecklistController::class, 'show'])->name('show');
+        Route::post('/checklists/{checklist}', [ChecklistController::class, 'store'])->name('store');
+        
+        // Results routes
         Route::get('/results', [ChecklistController::class, 'resultsIndex'])->name('results.index');
         Route::get('/results/{submission}', [ChecklistController::class, 'resultsShow'])->name('results.show');
-        Route::get('/results/{submission}/edit', [ChecklistController::class, 'edit'])->name('results.edit');
-        Route::put('/results/{submission}', [ChecklistController::class, 'update'])->name('results.update');
-
-        // Wildcard routes last to avoid catching specific URLs
-        Route::get('/{checklist:slug}', [ChecklistController::class, 'show'])->name('show');
-        Route::post('/{checklist}', [ChecklistController::class, 'store'])->name('store');
+        
+        // Department routes
+        Route::get('/departments', [ChecklistController::class, 'departmentIndex'])->name('departments');
+        Route::get('/departments/{department}', [ChecklistController::class, 'checklistsByDepartment'])->name('byDepartment');
     });
 
     // Report Routes
@@ -121,7 +126,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/programs', [ReportController::class, 'programsReport'])->name('programs');
         Route::get('/staff', [ReportController::class, 'staffReport'])->name('staff');
         Route::get('/cqi-projects', [ReportController::class, 'cqiProjectsReport'])->name('cqi-projects');
-        Route::get('/checklist-submissions', [ReportController::class, 'checklistSubmissionReport'])->name('checklist-submissions');
+        Route::get('/checklist-submissions', [ReportController::class, 'checklistSubmissionsReport'])->name('checklist-submissions');
         Route::get('/{reportType}', [ReportController::class, 'generateReport'])->name('generate');
     });
 

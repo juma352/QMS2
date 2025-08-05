@@ -158,58 +158,33 @@
                 </div>
             </div>
         @endforeach
-    </div>
-
-    <div class="checklist-container">
-        <div class="checklist-header">
-            @php
-                $total = $completedChecklists + $pendingChecklists;
-                $completedPercentage = $total > 0 ? ($completedChecklists / $total) * 100 : 0;
-            @endphp
-            <div class="d-flex align-items-center gap-3">
-                <div class="progress-circle" aria-label="Checklist completion: {{ round($completedPercentage) }}%">
-                    <svg viewBox="0 0 36 36">
-                        <circle class="progress-circle-bg" cx="18" cy="18" r="15.9155"></circle>
-                        <circle class="progress-circle-fill" cx="18" cy="18" r="15.9155" stroke-dasharray="{{ $completedPercentage }} 100"></circle>
-                    </svg>
-                    <div class="progress-text">{{ round($completedPercentage) }}%</div>
+        <div class="stat-card bg-gradient-1">
+            <div class="stat-card-content d-flex flex-column justify-content-between h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <i class="fas fa-chart-bar icon"></i>
+                    <span class="value">{{ $userSubmissions->count() }}</span>
                 </div>
-                <div class="checklist-title-wrapper">
-                    <h2>Your Assigned Checklists</h2>
-                </div>
-            </div>
-            <div class="d-flex gap-4" style="font-size: 0.85rem;">
-                <span class="text-success fw-semibold"><i class="fas fa-check-circle me-1"></i> {{ $completedChecklists }} Completed</span>
-                <span class="text-warning fw-semibold"><i class="fas fa-circle-notch me-1"></i> {{ $pendingChecklists }} Pending</span>
+                <a href="{{ route('checklists.results.index') }}" class="text-white text-decoration-none stretched-link">
+                    <div class="label mt-3">Checklist Results</div>
+                </a>
             </div>
         </div>
+    </div>
 
-        @if($checklists->isEmpty())
-            <div class="empty-state">
-                <i class="fas fa-clipboard-check"></i>
-                <h3>All Clear!</h3>
-                <p>You have no assigned checklists at the moment.</p>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <p class="card-text">Access your checklists and manage your quality management tasks</p>
+                    <a href="{{ route('checklists.index') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-clipboard-list me-1"></i> View Checklists
+                    </a>
+                    <a href="{{ route('checklists.departments') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-clipboard-check me-1"></i> My Submissions
+                    </a>
+                </div>
             </div>
-        @else
-            <div class="checklist-grid">
-                @foreach ($checklists as $checklist)
-                    @php $submission = $userSubmissions->get($checklist->id); @endphp
-                    <div class="checklist-card">
-                        <i class="fas {{ $submission ? 'fa-check-circle text-success' : 'fa-circle-notch text-muted' }} checklist-icon"></i>
-                        <div class="checklist-details">
-                            <h4 class="checklist-title">{{ $checklist->title }}</h4>
-                            <p class="checklist-desc">{{ Str::limit($checklist->description, 50) ?? 'No description.' }}</p>
-                        </div>
-                        <div class="ms-auto ps-2">
-                            @if ($submission)
-                                <a href="{{ route('checklists.results.show', $submission->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-chart-bar"></i> Results</a>
-                            @else
-                                <a href="{{ route('checklists.show', $checklist->slug) }}" class="btn-action btn-primary"><i class="fas fa-play"></i> Start</a>
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @endif
+        </div>
     </div>
 @endsection
