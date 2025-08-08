@@ -53,10 +53,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
 
-            // Load dynamic checklist routes
-            Route::middleware('web')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/web_dynamic_checklist.php'));
+            // Dynamic checklist routes are now integrated into web.php
         });
     }
 

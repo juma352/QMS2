@@ -27,6 +27,8 @@ class CreateStaffTable extends Migration
         $table->string('cv')->nullable();
         $table->string('short_course_certificate')->nullable();
         $table->string('other_certificate')->nullable();
+        $table->date('start_date')->nullable();
+        $table->text('experience')->nullable();
         $table->timestamps();
     });
 }

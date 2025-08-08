@@ -26,6 +26,12 @@ class AuditChecklist extends Model
         'checklist_id',
         'generated_by',
         'generated_at',
+        'status',
+        'completed_at',
+        'score',
+        'notes',
+        'assigned_to',
+        'due_date',
     ];
 
     /**
@@ -35,6 +41,9 @@ class AuditChecklist extends Model
      */
     protected $casts = [
         'generated_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'due_date' => 'date',
+        'score' => 'decimal:2',
     ];
 
     /**

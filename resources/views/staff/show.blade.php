@@ -37,6 +37,28 @@
                 <strong style="color: #4b5563;">Renewal Date:</strong>
                 <span>{{ $staff->license_renewal_date ? \Carbon\Carbon::parse($staff->license_renewal_date)->format('d M, Y') : 'N/A' }}</span>
             </div>
+            <strong style="color: #4b5563;">Start Date:</strong>
+                <span>{{ $staff->start_date ? \Carbon\Carbon::parse($staff->start_date)->format('d M, Y') : 'N/A' }}</span>
+                <strong style="color: #4b5563;">Experience:</strong>
+                <span>
+                    @if($staff->start_date)
+                        @php
+                            $startDate = \Carbon\Carbon::parse($staff->start_date);
+                            $now = \Carbon\Carbon::now();
+                            $diff = $startDate->diff($now);
+                            $years = $diff->y;
+                            $months = $diff->m;
+                        @endphp
+                        {{ $years > 0 ? $years . ' year' . ($years > 1 ? 's' : '') : '' }}
+                        {{ $months > 0 ? ($years > 0 ? ' and ' : '') . $months . ' month' . ($months > 1 ? 's' : '') : '' }}
+                        {{ $years == 0 && $months == 0 ? 'Less than a month' : '' }}
+                    @else
+                        N/A
+                    @endif
+                </span>
+
+
+
         </div>
     </div>
 

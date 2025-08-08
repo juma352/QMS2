@@ -13,6 +13,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StandardController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\DynamicChecklistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('programs', ProgramController::class);
     Route::resource('standards', StandardController::class);
     Route::resource('staff', StaffController::class);
+    Route::resource('checklists', ChecklistController::class);
 
     // Expanded CQI Project Routes for clarity.
     // This group defines all routes under the '/cqi-projects' URL.
@@ -100,22 +102,49 @@ Route::middleware('auth')->group(function () {
     // --- CUSTOM ROUTES ---
     // These are routes that don't fit the standard resource controller pattern.
 
-    // Checklist Routes
+    // Dynamic Checklist Routes - Integrated from web_dynamic_checklist.php
+    Route::prefix('audits')->name('audits.')->group(function () {
+        // Dynamic checklist creation routes
+        Route::get('{audit}/checklist/create', [DynamicChecklistController::class, 'create'])
+            ->name('checklist.create');
+        
+        Route::post('{audit}/checklist', [DynamicChecklistController::class, 'store'])
+            ->name('checklist.store');
+    });
+
+    // Dynamic Checklist Routes (Primary)
     Route::prefix('checklists')->name('checklists.')->group(function () {
-        // Main index route for all checklists
-        Route::get('/checklists', [ChecklistController::class, 'checklistsIndex'])->name('index');
+        // Main index route for all dynamic checklists
+        Route::get('/', [DynamicChecklistController::class, 'dynamic_index'])->name('dynamic_index');
         
-        // Show individual checklist
-        Route::get('/checklists/{checklist}', [ChecklistController::class, 'show'])->name('show');
-        Route::post('/checklists/{checklist}', [ChecklistController::class, 'store'])->name('store');
+        // Show individual dynamic checklist
+        Route::get('/{checklist}', [DynamicChecklistController::class, 'showComplete'])->name('dynamic_show_complete');
         
-        // Results routes
+        // Edit and Update Dynamic Checklist
+        Route::get('/edit/{id}', [DynamicChecklistController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [DynamicChecklistController::class, 'update'])->name('update');
+
+        // Submit Dynamic Checklist
+        Route::get('/submit/{id}', [DynamicChecklistController::class, 'submit'])->name('submit');
+        Route::post('/submit/{id}', [DynamicChecklistController::class, 'submitChecklist'])->name('submit.post');
+
+        // Results routes for checklist submissions
+        Route::prefix('results')->name('results.')->group(function () {
+            Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
+        });
+        
+    });
+    Route::prefix('submissions')->name('submissions.')->group(function () {
+        Route::get('/', [DynamicChecklistController::class, 'resultsIndex'])->name('index');
+        Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
+        Route::get('/{submission}/print', [DynamicChecklistController::class, 'printSubmission'])->name('print');
+    });
+
+    // Legacy Checklist Routes (Deprecated - will be removed)
+    Route::prefix('legacy-checklists')->name('legacy.')->group(function () {
+        Route::get('/', [ChecklistController::class, 'checklistsIndex'])->name('index');
+        Route::get('/{checklist}', [ChecklistController::class, 'show'])->name('show');
         Route::get('/results', [ChecklistController::class, 'resultsIndex'])->name('results.index');
-        Route::get('/results/{submission}', [ChecklistController::class, 'resultsShow'])->name('results.show');
-        
-        // Department routes
-        Route::get('/departments', [ChecklistController::class, 'departmentIndex'])->name('departments');
-        Route::get('/departments/{department}', [ChecklistController::class, 'checklistsByDepartment'])->name('byDepartment');
     });
 
     // Report Routes

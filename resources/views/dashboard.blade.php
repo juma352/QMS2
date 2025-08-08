@@ -164,7 +164,7 @@
                     <i class="fas fa-chart-bar icon"></i>
                     <span class="value">{{ $userSubmissions->count() }}</span>
                 </div>
-                <a href="{{ route('checklists.results.index') }}" class="text-white text-decoration-none stretched-link">
+                <a href="{{ route('submissions.index') }}" class="text-white text-decoration-none stretched-link">
                     <div class="label mt-3">Checklist Results</div>
                 </a>
             </div>
@@ -177,12 +177,12 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">Quick Actions</h5>
                     <p class="card-text">Access your checklists and manage your quality management tasks</p>
-                    <a href="{{ route('checklists.index') }}" class="btn btn-primary me-2">
+                    <a href="{{ route('checklists.dynamic_index') }}" class="btn btn-primary me-2">
                         <i class="fas fa-clipboard-list me-1"></i> View Checklists
                     </a>
-                    <a href="{{ route('checklists.departments') }}" class="btn btn-outline-primary">
+                    {{-- <a href="{{ route('checklists.departments') }}" class="btn btn-outline-primary">
                         <i class="fas fa-clipboard-check me-1"></i> My Submissions
-                    </a>
+                    </a> --}}
                 </div>
             </div>
         </div>

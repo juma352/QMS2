@@ -6,6 +6,8 @@ use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Subdivision; // Assuming you have a Subdivision model for departments
+
 
 class StaffController extends Controller
 {
@@ -23,7 +25,8 @@ class StaffController extends Controller
      */
     public function create()
     {
-        return view('staff.create');
+         $subdivisions = Subdivision::all();
+        return view('staff.create', compact('subdivisions'));
     }
 
     /**
@@ -39,6 +42,8 @@ class StaffController extends Controller
             'department' => ['nullable', 'string', 'max:255'],
             'license_number' => ['nullable', 'string', 'max:255'],
             'license_renewal_date' => ['nullable', 'date'],
+            'start_date' => ['nullable', 'date'],
+            'experience' => ['nullable', 'string', 'max:255'],
             'license_document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'appointment_letter' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'cv' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
@@ -47,6 +52,9 @@ class StaffController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
+
+        $validatedData['start_date'] = $request->input('start_date');
+        $validatedData['experience'] = $request->input('experience');
 
         $fileFields = [
             'license_document',
@@ -112,6 +120,8 @@ class StaffController extends Controller
             'cv' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'short_course_certificate' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
             'other_certificate' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:5120'],
+            'start_date' => ['nullable', 'date'],
+            
         ];
 
         $validatedData = $request->validate($rules);
