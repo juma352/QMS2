@@ -127,7 +127,13 @@
             <div class="section-title">{{ $section }}</div>
             @foreach($answers as $answer)
                 <div class="question">
-                    <div class="question-text">{{ $loop->parent->iteration }}.{{ $loop->iteration }} {{ $answer->checklistItem->question_text }}</div>
+                    <div class="question-text">{{ $loop->parent->iteration }}.{{ $loop->iteration }} 
+                        @if($answer->checklistItem->question)
+                            {{ $answer->checklistItem->question->question_text }}
+                        @else
+                            {{ $answer->checklistItem->question_text }}
+                        @endif
+                    </div>
                     <div class="rating">Rating: {{ $answer->rating }}/7</div>
                     @if($answer->comments)
                         <div class="comments">

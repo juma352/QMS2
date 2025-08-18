@@ -24,7 +24,13 @@
                     <legend class="h6 fw-bold border-bottom pb-2 mb-3"><i class="fas fa-bookmark me-2"></i>{{ $section }}</legend>
                     @foreach($items as $item)
                         <div class="mb-4">
-                            <label for="item-{{$item->id}}" class="form-label">{{ $loop->parent->iteration }}.{{ $loop->iteration }}. {{ $item->question_text }}</label>
+                            <label for="item-{{$item->id}}" class="form-label">{{ $loop->parent->iteration }}.{{ $loop->iteration }}. 
+                                @if($item->question)
+                                    {{ $item->question->question_text }}
+                                @else
+                                    {{ $item->question_text }}
+                                @endif
+                            </label>
                             <select name="ratings[{{ $item->id }}]" id="item-{{$item->id}}" class="form-select" required>
                                 <option value="">Select a rating</option>
                                 <option value="1">1 (Poor)</option>

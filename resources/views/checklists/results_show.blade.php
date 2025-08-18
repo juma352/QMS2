@@ -135,7 +135,13 @@
                     <legend class="section-legend">{{ $section }}</legend>
                     @foreach($answers as $answer)
                         <div class="question-block">
-                            <p class="question-text">{{ $loop->parent->iteration }}.{{ $loop->iteration }} {{ $answer->checklistItem->question_text }}</p>
+                            <p class="question-text">{{ $loop->parent->iteration }}.{{ $loop->iteration }} 
+                                @if($answer->checklistItem->question)
+                                    {{ $answer->checklistItem->question->question_text }}
+                                @else
+                                    {{ $answer->checklistItem->question_text }}
+                                @endif
+                            </p>
 
                             <div class="rating-scale">
                                 <span class="rating-scale-label">Strongly Disagree</span>
