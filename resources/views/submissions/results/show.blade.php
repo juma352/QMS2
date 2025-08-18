@@ -64,7 +64,7 @@
                                 <div class="accordion" id="answersAccordion">
                                     @php
                                         $groupedAnswers = $submission->answers->groupBy(function($answer) {
-                                            return $answer->checklistItem->section ?? 'General';
+                                            return $answer->checklistItem ? $answer->checklistItem->section : 'General';
                                         });
                                     @endphp
 
@@ -87,53 +87,56 @@
                                                  data-parent="#answersAccordion">
                                                 <div class="card-body">
                                                     @foreach($answers as $index => $answer)
+                                                        @php
+                                                            $ratingValue = $answer->rating;
+                                                            $ratingText = $answer->checklistItem ? $answer->checklistItem->getRatingLabel($ratingValue) : 'N/A';
+
+                                                            $badgeColor = 'secondary';
+                                                            if ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_5') {
+                                                                $badgeColor = $ratingValue >= 4 ? 'success' : ($ratingValue >= 3 ? 'warning' : 'danger');
+                                                            } elseif ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_10') {
+                                                                $badgeColor = $ratingValue >= 8 ? 'success' : ($ratingValue >= 6 ? 'warning' : 'danger');
+                                                            } elseif ($answer->checklistItem && in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
+                                                                $badgeColor = $ratingValue ? 'success' : 'danger';
+                                                            }
+                                                        @endphp
+
                                                         <div class="mb-3 p-3 border rounded bg-light">
                                                             <div class="d-flex justify-content-between align-items-start mb-2">
                                                                 <div class="flex-grow-1">
                                                                     <h6 class="mb-1 font-weight-bold">
-                                                                        {{ $index + 1 }}. {{ $answer->checklistItem->question_text ?? 'Question' }}
+                                                                        {{ $index + 1 }}. {{ $answer->checklistItem ? $answer->checklistItem->question_text : 'N/A' }}
                                                                     </h6>
                                                                     <small class="text-muted">
-                                                                        Type: {{ ucfirst(str_replace('_', ' ', $answer->checklistItem->rating_type ?? 'text')) }}
+                                                                        Type: {{ ucfirst(str_replace('_', ' ', $answer->checklistItem ? $answer->checklistItem->rating_type : 'N/A')) }}
                                                                     </small>
                                                                 </div>
                                                                 <div>
-                                                                    @php
-                                                                        $ratingValue = $answer->rating;
-                                                                        $ratingText = $answer->checklistItem->getRatingLabel();
-                                                                        
-                                                                        // Determine badge color based on rating
-                                                                        $badgeColor = 'secondary';
-                                                                        if ($answer->checklistItem->rating_type === 'scale_1_5') {
-                                                                            if ($ratingValue >= 4) $badgeColor = 'success';
-                                                                            elseif ($ratingValue >= 3) $badgeColor = 'warning';
-                                                                            else $badgeColor = 'danger';
-                                                                        } elseif ($answer->checklistItem->rating_type === 'scale_1_10') {
-                                                                            if ($ratingValue >= 8) $badgeColor = 'success';
-                                                                            elseif ($ratingValue >= 6) $badgeColor = 'warning';
-                                                                            else $badgeColor = 'danger';
-                                                                        } elseif (in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
-                                                                            $badgeColor = $ratingValue ? 'success' : 'danger';
-                                                                        }
-                                                                    @endphp
                                                                     <span class="badge badge-{{ $badgeColor }}">
                                                                         {{ $ratingText }}
                                                                     </span>
                                                                 </div>
                                                             </div>
-                                                            
-                                                            @if($answer->comments)
-                                                                <div class="mt-3 p-3 bg-light rounded">
-                                                                    <strong><i class="fas fa-comment-alt mr-2"></i> Comments:</strong>
-                                                                    <p class="mb-0">{{ $answer->comments }}</p>
-                                                                </div>
-                                                            @endif
-                                                            
+
                                                             <div class="mt-2">
                                                                 <small class="text-muted">
-                                                                    <strong>Rating:</strong> {{ $ratingText }} ({{ $ratingValue }})
+                                                                    <strong>Rating:</strong> {{ $ratingValue }} — {{ $ratingText }}
                                                                 </small>
                                                             </div>
+
+                                                            @if($answer->notes)
+                                                                <div class="mt-3 p-3 bg-white rounded border">
+                                                                    <strong><i class="fas fa-sticky-note mr-2"></i> Notes:</strong>
+                                                                    <p class="mb-0">{{ $answer->notes }}</p>
+                                                                </div>
+                                                            @endif
+
+                                                            @if($answer->evidence)
+                                                                <div class="mt-2">
+                                                                    <strong><i class="fas fa-paperclip mr-2"></i> Evidence:</strong>
+                                                                    <a href="{{ Storage::url($answer->evidence) }}" target="_blank">View File</a>
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -144,6 +147,18 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Final Comments -->
+                    @if(!empty($submission->comments))
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Final Comments</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ $submission->comments }}</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 

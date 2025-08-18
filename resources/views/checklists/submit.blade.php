@@ -38,111 +38,100 @@
                 </div>
 
                 <!-- Questions Section -->
-                <div class="questions-section mt-4">
-                    <h5 class="border-bottom pb-2">Rate Questions & Provide Responses</h5>
-                    
-                    @foreach($itemsBySection as $section => $items)
-                        <div class="section-block mt-4">
-                            <h6 class="fw-bold">{{ $section }}</h6>
-                            
-                            @foreach($items as $item)
-                                <div class="question-block border-bottom py-3">
-                                    <p class="mb-2"><strong>Q: {{ $item->question_text }}</strong></p>
-                                    
-                                    <div class="response-details">
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Rating <span class="text-danger">*</span></label>
-                                            
-                                            @if($item->rating_type == 'scale_1_5')
-                                                <select name="items[{{ $item->id }}][rating]" 
-                                                        class="form-control rating-select" 
-                                                        required>
-                                                    <option value="">Select Rating (1-5)</option>
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <option value="{{ $i }}" {{ isset($item->response->rating) && $item->response->rating == $i ? 'selected' : '' }}>
-                                                            {{ $i }} - {{ $i == 1 ? 'Poor' : ($i == 2 ? 'Fair' : ($i == 3 ? 'Good' : ($i == 4 ? 'Very Good' : 'Excellent'))) }}
-                                                        </option>
-                                                    @endfor
-                                                </select>
-                                                
-                                            @elseif($item->rating_type == 'scale_1_7')
-                                                <select name="items[{{ $item->id }}][rating]" 
-                                                        class="form-control rating-select" 
-                                                        required>
-                                                    <option value="">Select Rating (1-7)</option>
-                                                    @for($i = 1; $i <= 7; $i++)
-                                                        <option value="{{ $i }}" {{ isset($item->response->rating) && $item->response->rating == $i ? 'selected' : '' }}>
-                                                            {{ $i }}
-                                                        </option>
-                                                    @endfor
-                                                </select>
-                                                
-                                            @elseif($item->rating_type == 'scale_1_10')
-                                                <select name="items[{{ $item->id }}][rating]" 
-                                                        class="form-control rating-select" 
-                                                        required>
-                                                    <option value="">Select Rating (1-10)</option>
-                                                    @for($i = 1; $i <= 10; $i++)
-                                                        <option value="{{ $i }}" {{ isset($item->response->rating) && $item->response->rating == $i ? 'selected' : '' }}>
-                                                            {{ $i }}
-                                                        </option>
-                                                    @endfor
-                                                </select>
-                                                
-                                            @elseif($item->rating_type == 'yes_no')
-                                                <select name="items[{{ $item->id }}][rating]" 
-                                                        class="form-control rating-select" 
-                                                        required>
-                                                    <option value="">Select Response</option>
-                                                    <option value="yes" {{ isset($item->response->rating) && $item->response->rating == 'yes' ? 'selected' : '' }}>Yes</option>
-                                                    <option value="no" {{ isset($item->response->rating) && $item->response->rating == 'no' ? 'selected' : '' }}>No</option>
-                                                </select>
-                                                
-                                            @elseif($item->rating_type == 'pass_fail')
-                                                <select name="items[{{ $item->id }}][rating]" 
-                                                        class="form-control rating-select" 
-                                                        required>
-                                                    <option value="">Select Result</option>
-                                                    <option value="pass" {{ isset($item->response->rating) && $item->response->rating == 'pass' ? 'selected' : '' }}>Pass</option>
-                                                    <option value="fail" {{ isset($item->response->rating) && $item->response->rating == 'fail' ? 'selected' : '' }}>Fail</option>
-                                                </select>
-                                                
-                                            @else
-                                                <input type="number" 
-                                                       name="items[{{ $item->id }}][rating]" 
-                                                       class="form-control" 
-                                                       min="1" 
-                                                       max="5" 
-                                                       value="{{ $item->response->rating ?? '' }}"
-                                                       required>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Notes</label>
-                                            <textarea name="items[{{ $item->id }}][notes]" 
-                                                      class="form-control" 
-                                                      rows="2"
-                                                      placeholder="Add any additional notes...">{{ $item->response->notes ?? '' }}</textarea>
-                                        </div>
-                                        
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Evidence (Optional)</label>
-                                            <input type="file" 
-                                                   name="items[{{ $item->id }}][evidence]" 
-                                                   class="form-control">
-                                            @if(isset($item->response->evidence))
-                                                <small class="form-text text-muted">
-                                                    Current: <a href="{{ Storage::url($item->response->evidence) }}" target="_blank">View Evidence</a>
-                                                </small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
+               <!-- Questions Section -->
+<div class="questions-section mt-4">
+    <h5 class="border-bottom pb-2">Rate Questions & Provide Responses</h5>
+
+    @foreach($itemsBySection as $section => $items)
+        <div class="section-block mt-4">
+            <h6 class="fw-bold">{{ $section }}</h6>
+
+            @foreach($items as $item)
+                <div class="question-block border-bottom py-3">
+                    <p class="mb-2"><strong>Q: {{ $item->question_text }}</strong></p>
+
+                    <div class="response-details">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Rating <span class="text-danger">*</span></label>
+
+                            @php
+                                $options = $item->getRatingOptions();
+                                $selected = $item->response->rating ?? null;
+                            @endphp
+
+                            @if(in_array($item->rating_type, ['scale_1_5', 'scale_1_7', 'scale_1_10', 'custom']))
+                                <select name="items[{{ $item->id }}][rating]" 
+                                        class="form-control rating-select" 
+                                        required>
+                                    <option value="">Select Rating</option>
+                                    @foreach($options as $value => $label)
+                                        <option value="{{ $value }}" {{ $selected == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                            @elseif($item->rating_type == 'yes_no')
+                                <select name="items[{{ $item->id }}][rating]" 
+                                        class="form-control rating-select" 
+                                        required>
+                                    <option value="">Select Response</option>
+                                    <option value="1" {{ $selected == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $selected == '0' ? 'selected' : '' }}>No</option>
+                                </select>
+
+                            @elseif($item->rating_type == 'pass_fail')
+                                <select name="items[{{ $item->id }}][rating]" 
+                                        class="form-control rating-select" 
+                                        required>
+                                    <option value="">Select Result</option>
+                                    <option value="1" {{ $selected == '1' ? 'selected' : '' }}>Pass</option>
+                                    <option value="0" {{ $selected == '0' ? 'selected' : '' }}>Fail</option>
+                                </select>
+
+                            @else
+                                <input type="number" 
+                                       name="items[{{ $item->id }}][rating]" 
+                                       class="form-control" 
+                                       min="1" 
+                                       max="5" 
+                                       value="{{ $selected }}"
+                                       required>
+                            @endif
+
+                            @if($selected)
+                                <p class="mt-2 text-muted">
+                                    Selected: <strong>{{ $item->getRatingLabel() }}</strong>
+                                </p>
+                            @endif
                         </div>
-                    @endforeach
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="items[{{ $item->id }}][notes]" 
+                                      class="form-control" 
+                                      rows="2"
+                                      placeholder="Add any additional notes...">{{ $item->response->notes ?? '' }}</textarea>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Evidence (Optional)</label>
+                            <input type="file" 
+                                   name="items[{{ $item->id }}][evidence]" 
+                                   class="form-control">
+                            @if(isset($item->response->evidence))
+                                <small class="form-text text-muted">
+                                    Current: <a href="{{ Storage::url($item->response->evidence) }}" target="_blank">View Evidence</a>
+                                </small>
+                            @endif
+                        </div>
+                    </div>
                 </div>
+            @endforeach
+        </div>
+    @endforeach
+</div>
+
 
                 <!-- Final Comments -->
                 <div class="row mt-4">

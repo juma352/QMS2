@@ -250,7 +250,7 @@
             </a>
 
             @auth
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->role === 'admin')
                     <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->is('users*') ? 'active' : '' }}" title="Users">
                         <i class="fas fa-users-cog icon"></i><span class="link-text">Users</span>
                     </a>

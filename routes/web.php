@@ -14,6 +14,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StandardController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\DynamicChecklistController;
+use App\Http\Controllers\MedicalSpecialistChecklistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,13 +132,31 @@ Route::middleware('auth')->group(function () {
         // Results routes for checklist submissions
         Route::prefix('results')->name('results.')->group(function () {
             Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
+
         });
+        Route::prefix('medical-specialist')->name('medical-specialist.')->middleware(['auth'])->group(function () {
+    Route::get('/start', [MedicalSpecialistChecklistController::class, 'start'])->name('start');
+    Route::get('/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'showStep'])->name('step');
+    Route::match(['post', 'put'], '/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'saveStep'])->name('save-step');
+    Route::post('/{submission}/save-draft', [MedicalSpecialistChecklistController::class, 'saveDraft'])->name('save-draft');
+    Route::get('/{submission}/resume', [MedicalSpecialistChecklistController::class, 'resume'])->name('resume');
+    Route::post('/{submission}/submit', [MedicalSpecialistChecklistController::class, 'submit'])->name('submit');
+    Route::get('/{submission}/success', function($id) {
+            return view('checklists.medical-specialist.success', ['submission' => $id]);
+        })->name('success');
+    Route::get('/drafts', [MedicalSpecialistChecklistController::class, 'drafts'])->name('drafts');
+    Route::delete('/drafts/{submission}', [MedicalSpecialistChecklistController::class, 'destroyDraft'])->name('drafts.destroy');
+    Route::get('/{submission}/results', [MedicalSpecialistChecklistController::class, 'results'])->name('results');
+});
+
         
     });
     Route::prefix('submissions')->name('submissions.')->group(function () {
         Route::get('/', [DynamicChecklistController::class, 'resultsIndex'])->name('index');
         Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
         Route::get('/{submission}/print', [DynamicChecklistController::class, 'printSubmission'])->name('print');
+        Route::delete('/submissions/{id}', [DynamicChecklistController::class, 'destroy'])->name('destroy');
+
     });
 
     // Legacy Checklist Routes (Deprecated - will be removed)
@@ -164,7 +183,13 @@ Route::middleware('auth')->group(function () {
     // Make sure it points to the correct controller class.
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::post('/users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('users.reset-password');
+        Route::post('/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
+        Route::post('/users/{id}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
     });
+
 });

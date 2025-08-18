@@ -42,4 +42,24 @@ class ChecklistSubmission extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function progress()
+    {
+        return $this->hasOne(ChecklistProgress::class);
+    }
+     public function getStatusWithColor(): array
+    {
+        $status = $this->status;
+        $colorClass = match ($status) {
+            'pending' => 'text-warning',
+            'draft' => 'text-danger',
+            'submitted' => 'text-success',
+            default => 'text-secondary',
+        };
+
+        return [
+            'status' => $status,
+            'color' => $colorClass
+        ];
+    }
 }

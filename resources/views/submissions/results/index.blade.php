@@ -41,22 +41,48 @@
                                 </thead>
                                 <tbody>
                                     @foreach($submissions as $submission)
+                                        @php
+                                            $statusInfo = $submission->getStatusWithColor();
+                                        @endphp
                                         <tr>
                                             <td>{{ $submission->id }}</td>
                                             <td>{{ $submission->checklist->title ?? 'N/A' }}</td>
-                                            <td>{{ $submission->department_name }}</td>
+                                            <td>{{ $submission->department_name ?? 'N/A' }}</td>
                                             <td>{{ $submission->user->name ?? 'Unknown' }}</td>
-                                            <td>{{ $submission->created_at ? $submission->created_at->format('M d, Y H:i') : 'N/A' }}</td>
+                                    
                                             <td>
-                                                <span class="badge badge-{{ $submission->status == 'completed' ? 'success' : 'warning' }}">
-                                                    {{ ucfirst($submission->status) }}
+    {{ $submission->created_at 
+        ? $submission->created_at->setTimezone('Africa/Nairobi')->format('l, M d, Y \a\t g:i A') 
+        : 'N/A' }}
+</td>
+                                                
+
+                                            <td>
+                                                <span class="badge {{ $statusInfo['color'] }}">
+                                                    {{ ucfirst($statusInfo['status']) }}
                                                 </span>
                                             </td>
-                                            <td>
-                                                <a href="{{ route('submissions.show', $submission) }}" 
-                                                   class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
+                                            <td class="d-flex gap-2">
+                                                @if($submission->checklist && $submission->checklist->type === 'medical_specialist')
+                                                    <a href="{{ route('checklists.medical-specialist.results', $submission) }}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                @elseif($submission->checklist)
+                                                    <a href="{{ route('submissions.show', $submission) }}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">Checklist Deleted</span>
+                                                @endif
+
+                                                <form action="{{ route('submissions.destroy', $submission->id) }}" method="POST" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this submission?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash-alt"></i> Delete
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach

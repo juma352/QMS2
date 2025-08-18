@@ -20,7 +20,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Add 'role' to the fillable array
+        'role',
+        'password_changed_at',
+        'temporary_password',
+        'password_reset_required',
     ];
 
     /**
@@ -55,5 +58,47 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user needs to reset their password.
+     *
+     * @return bool
+     */
+    public function needsPasswordReset(): bool
+    {
+        return $this->password_reset_required;
+    }
+
+    /**
+     * Mark the password as changed.
+     *
+     * @return void
+     */
+    public function markPasswordAsChanged(): void
+    {
+        $this->update([
+            'password_reset_required' => false,
+            'password_changed_at' => now(),
+            'temporary_password' => null,
+        ]);
+    }
+
+    /**
+     * Generate a temporary password.
+     *
+     * @return string
+     */
+    public static function generateTemporaryPassword(): string
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        $password = '';
+        $maxIndex = strlen($characters) - 1;
+        
+        for ($i = 0; $i < 12; $i++) {
+            $password .= $characters[random_int(0, $maxIndex)];
+        }
+        
+        return $password;
     }
 }

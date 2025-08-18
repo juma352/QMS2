@@ -19,6 +19,7 @@ class ChecklistItem extends Model
         'rating_value',
         'rating_notes',
         'rating_options',
+        'comments'
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class ChecklistItem extends Model
     public const RATING_TYPES = [
         'scale_1_5' => '1-5 Scale',
         'scale_1_10' => '1-10 Scale',
+        'scale_1_7' => '1-7 Scale',
         'yes_no' => 'Yes/No',
         'pass_fail' => 'Pass/Fail',
         'custom' => 'Custom Options',
@@ -55,6 +57,15 @@ class ChecklistItem extends Model
             9 => '9 - Excellent',
             10 => '10 - Outstanding',
         ],
+        'scale_1_7' => [
+            1 => '1 - Strongly Disagree',
+            2 => '2 - Disagree',
+            3 => '3 - Somewhat Disagree',
+            4 => '4 - Neutral',
+            5 => '5 - Somewhat Agree',
+            6 => '6 - Agree',
+            7 => '7 - Strongly Agree',
+        ],
         'yes_no' => [
             1 => 'Yes',
             0 => 'No',
@@ -64,25 +75,31 @@ class ChecklistItem extends Model
             0 => 'Fail',
         ],
     ];
+    
 
     public function checklist()
     {
         return $this->belongsTo(Checklist::class);
     }
+    
 
-    public function getRatingLabel()
-    {
-        $scale = self::RATING_SCALES[$this->rating_type] ?? null;
-        if ($scale && isset($scale[$this->rating_value])) {
-            return $scale[$this->rating_value];
-        }
-        
-        if ($this->rating_type === 'custom' && $this->rating_options) {
-            return $this->rating_options[$this->rating_value] ?? $this->rating_value;
-        }
-        
-        return $this->rating_value;
+public function getRatingLabel($value = null)
+{
+    $value = $value ?? $this->rating_value;
+
+    $scale = self::RATING_SCALES[$this->rating_type] ?? null;
+
+    if ($scale && isset($scale[$value])) {
+        return $scale[$value];
     }
+
+    if ($this->rating_type === 'custom' && is_array($this->rating_options)) {
+        return $this->rating_options[$value] ?? $value;
+    }
+
+    return $value;
+}
+
 
     public function getRatingOptions()
     {
@@ -93,3 +110,4 @@ class ChecklistItem extends Model
         return self::RATING_SCALES[$this->rating_type] ?? [];
     }
 }
+

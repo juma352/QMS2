@@ -18,16 +18,15 @@ class CheckRole
      * @param  string  $role The role to check for (e.g., 'admin').
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // First, check if the user is logged in and if their role matches the required role.
-        // We use the isAdmin() helper function for convenience if the required role is 'admin'.
-        if (!$request->user() || !$request->user()->isAdmin()) {
-             // If the user is not an admin, we stop the request and show a 403 Forbidden error.
+        // Check if the user is logged in and has one of the required roles.
+        if (!$request->user() || !in_array($request->user()->role, $roles)) {
+            // If the user does not have the required role, abort with a 403 error.
             abort(403, 'Unauthorized Action');
         }
 
-        // If the user has the required role, we allow the request to proceed to its destination.
+        // If the user has the required role, allow the request to proceed.
         return $next($request);
     }
 }

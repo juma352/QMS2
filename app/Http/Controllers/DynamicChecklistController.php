@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+
 class DynamicChecklistController extends Controller
 {
     /**
@@ -236,7 +237,44 @@ public function update(Request $request, $id)
             ->latest()
             ->get();
 
-        return view('checklists.dynamic_index', compact('dynamicChecklists'));
+        // Calculate progress for each checklist
+        foreach ($dynamicChecklists as $auditChecklist) {
+            $checklist = $auditChecklist->checklist;
+            if ($checklist) {
+                $latestSubmission = $checklist->submissions()->latest('submitted_at')->first();
+
+                if ($latestSubmission) {
+                    $answeredQuestions = $latestSubmission->answers()->count();
+                    $totalQuestions = $checklist->items()->count();
+                    $progressPercentage = ($totalQuestions > 0) ? ($answeredQuestions / $totalQuestions) * 100 : 0;
+                    $auditChecklist->progress_percentage = round($progressPercentage);
+                } else {
+                    $auditChecklist->progress_percentage = 0;
+                }
+            } else {
+                $auditChecklist->progress_percentage = 0;
+            }
+        }
+
+        $medicalSpecialistChecklist = \App\Models\Checklist::with('submissions.answers', 'items')
+            ->where('slug', 'medical-specialist-checklist')->first();
+
+        $staticSubmissionId = null;
+        if ($medicalSpecialistChecklist) {
+            $latestSubmission = $medicalSpecialistChecklist->submissions()->latest('submitted_at')->first();
+
+            if ($latestSubmission) {
+                $staticSubmissionId = $latestSubmission->id;
+                $answeredQuestions = $latestSubmission->answers()->count();
+                $totalQuestions = $medicalSpecialistChecklist->items()->count();
+                $progressPercentage = ($totalQuestions > 0) ? ($answeredQuestions / $totalQuestions) * 100 : 0;
+                $medicalSpecialistChecklist->progress_percentage = round($progressPercentage);
+            } else {
+                $medicalSpecialistChecklist->progress_percentage = 0;
+            }
+        }
+
+        return view('checklists.dynamic_index', compact('dynamicChecklists', 'medicalSpecialistChecklist', 'staticSubmissionId'));
     }
 
     /**
@@ -307,6 +345,7 @@ public function update(Request $request, $id)
             'items' => 'required|array',
             'items.*.rating' => 'required|string',
             'items.*.notes' => 'nullable|string|max:1000',
+            'items.*.comments' => 'nullable|string|max:1000',
             'items.*.evidence' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB
         ]);
 
@@ -353,6 +392,7 @@ public function update(Request $request, $id)
                     'checklist_item_id' => $itemId,
                     'rating' => $itemData['rating'],
                     'notes' => $itemData['notes'] ?? null,
+                    'comments' => $itemData['comments'] ?? null,
                     'evidence' => $evidencePath,
                 ]);
             }
@@ -397,10 +437,44 @@ public function update(Request $request, $id)
      */
     public function resultsShow(\App\Models\ChecklistSubmission $submission)
     {
-        $submission->load(['checklist', 'user', 'answers.checklistItem']);
-        
+        $submission->load(['checklist', 'user', 'answers']);
+
+        // Check if this is the Medical Specialist Checklist
+        if ($submission->checklist->type === 'medical_specialist') {
+            $progress = \App\Models\ChecklistProgress::where('checklist_submission_id', $submission->id)->firstOrFail();
+            
+            $steps = [
+                1 => 'Administrative Information',
+                2 => 'Governance & Management',
+                3 => 'Academic Programme',
+                4 => 'Physical Infrastructure',
+                5 => 'Faculty/Trainers',
+                6 => 'Student Welfare & Support',
+                7 => 'Programme Monitoring & Evaluation',
+                8 => 'Research & Innovation'
+            ];
+
+            $allQuestions = collect($steps)->mapWithKeys(function ($title, $step) {
+                return [$step => config('medical_specialist_checklist.questions.' . $step, [])];
+            });
+
+            $answersMap = $submission->answers->keyBy('question_key');
+
+            return view('checklists.medical-specialist.results', compact('submission', 'progress', 'steps', 'allQuestions', 'answersMap'));
+        }
+
+        // Use the default view for all other checklist results
+        $submission->load(['answers.checklistItem']);
         return view('submissions.results.show', compact('submission'));
     }
+    public function destroy($id)
+{
+    $submission = ChecklistSubmission::findOrFail($id);
+    $submission->delete();
+
+    return redirect()->back()->with('success', 'Submission deleted successfully.');
+}
+
 
     /**
      * Print submission details
@@ -411,5 +485,6 @@ public function update(Request $request, $id)
         
         return view('submissions.results.print', compact('submission'));
     }
+    
 
 }

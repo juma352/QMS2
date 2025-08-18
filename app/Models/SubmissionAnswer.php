@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SubmissionAnswer extends Model
 {
     use HasFactory;
-    protected $fillable = ['checklist_submission_id', 'checklist_item_id', 'rating', 'comments'];
+    protected $fillable = ['checklist_submission_id', 'checklist_item_id', 'rating', 'comments', 'notes', 'question_key', 'value'];
 
     public function checklistItem(): BelongsTo
     {

@@ -44,7 +44,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Checklist Description</label>
-                            <textarea name="checklist_description" id="checklist_description" class="form-control" rows="2" placeholder="Brief description of this checklist">{{ old('checklist_description', 'Dynamic checklist generated for audit: ' . $audit->audit_name) }}</textarea>
+                            <textarea name="checklist_description" id="checklist_description" class="form-control" rows="2" placeholder="Brief description of this checklist"></textarea>
                         </div>
 
                         <div class="mb-3">

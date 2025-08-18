@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Print Submission - {{ $submission->checklist->title ?? 'Submission' }}</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- Print Styles -->
     <style>
         @media print {
@@ -18,37 +18,33 @@
                 font-size: 12px;
                 line-height: 1.4;
             }
-            
+
             .print-header {
                 border-bottom: 2px solid #000;
                 margin-bottom: 20px;
                 padding-bottom: 10px;
             }
-            
+
             .print-section {
                 page-break-inside: avoid;
                 margin-bottom: 20px;
             }
-            
-            .print-answer {
+
+            .answer-item {
                 border: 1px solid #ddd;
                 padding: 10px;
                 margin-bottom: 10px;
                 background-color: #f9f9f9;
             }
-            
+
             .no-print {
                 display: none !important;
             }
-            
-            .print-only {
-                display: block !important;
-            }
-            
+
             .page-break {
                 page-break-before: always;
             }
-            
+
             .rating-badge {
                 display: inline-block;
                 padding: 2px 6px;
@@ -56,34 +52,25 @@
                 font-weight: bold;
                 border-radius: 3px;
             }
-            
+
             .rating-success { background-color: #d4edda; color: #155724; }
             .rating-warning { background-color: #fff3cd; color: #856404; }
             .rating-danger { background-color: #f8d7da; color: #721c24; }
             .rating-secondary { background-color: #e2e3e5; color: #383d41; }
         }
-        
-        .print-only {
-            display: none;
-        }
-        
+
         .print-header {
             text-align: center;
             margin-bottom: 30px;
         }
-        
-        .print-logo {
-            max-height: 60px;
-            margin-bottom: 10px;
-        }
-        
+
         .submission-meta {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
-        
+
         .section-header {
             background-color: #e9ecef;
             padding: 10px;
@@ -91,18 +78,18 @@
             border-radius: 5px;
             font-weight: bold;
         }
-        
+
         .answer-item {
             border-left: 3px solid #007bff;
             padding-left: 15px;
             margin-bottom: 15px;
         }
-        
+
         .rating-display {
             font-weight: bold;
             color: #007bff;
         }
-        
+
         .comments-box {
             background-color: #f8f9fa;
             padding: 10px;
@@ -162,7 +149,7 @@
         <!-- Submission Answers -->
         <div class="print-section">
             <h4>Submission Answers</h4>
-            
+
             @if($submission->answers->isEmpty())
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i> No answers found for this submission.
@@ -180,42 +167,48 @@
                     </div>
 
                     @foreach($answers as $index => $answer)
+                        @php
+                            $ratingValue = $answer->rating;
+                            $ratingText = $answer->checklistItem->getRatingLabel($ratingValue);
+
+                            $badgeClass = 'rating-secondary';
+                            if ($answer->checklistItem->rating_type === 'scale_1_5') {
+                                $badgeClass = $ratingValue >= 4 ? 'rating-success' : ($ratingValue >= 3 ? 'rating-warning' : 'rating-danger');
+                            } elseif ($answer->checklistItem->rating_type === 'scale_1_10') {
+                                $badgeClass = $ratingValue >= 8 ? 'rating-success' : ($ratingValue >= 6 ? 'rating-warning' : 'rating-danger');
+                            } elseif (in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
+                                $badgeClass = $ratingValue ? 'rating-success' : 'rating-danger';
+                            }
+                        @endphp
+
                         <div class="answer-item">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <strong>{{ $index + 1 }}. {{ $answer->checklistItem->question_text ?? 'Question' }}</strong>
-                                    <br>
+                                    <strong>{{ $index + 1 }}. {{ $answer->checklistItem->question_text ?? 'Question' }}</strong><br>
                                     <small class="text-muted">Type: {{ ucfirst(str_replace('_', ' ', $answer->checklistItem->rating_type ?? 'text')) }}</small>
                                 </div>
                                 <div class="rating-display">
-                                    @php
-                                        $ratingValue = $answer->rating;
-                                        $ratingText = $answer->checklistItem->getRatingLabel();
-                                        
-                                        // Determine badge color based on rating
-                                        $badgeClass = 'rating-secondary';
-                                        if ($answer->checklistItem->rating_type === 'scale_1_5') {
-                                            if ($ratingValue >= 4) $badgeClass = 'rating-success';
-                                            elseif ($ratingValue >= 3) $badgeClass = 'rating-warning';
-                                            else $badgeClass = 'rating-danger';
-                                        } elseif ($answer->checklistItem->rating_type === 'scale_1_10') {
-                                            if ($ratingValue >= 8) $badgeClass = 'rating-success';
-                                            elseif ($ratingValue >= 6) $badgeClass = 'rating-warning';
-                                            else $badgeClass = 'rating-danger';
-                                        } elseif (in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
-                                            $badgeClass = $ratingValue ? 'rating-success' : 'rating-danger';
-                                        }
-                                    @endphp
                                     <span class="rating-badge {{ $badgeClass }}">
                                         {{ $ratingText }}
                                     </span>
                                 </div>
                             </div>
-                            
-                            @if($answer->comments)
+
+                            <div class="mt-1">
+                                <small><strong>Rating:</strong> {{ $ratingValue }} — {{ $ratingText }}</small>
+                            </div>
+
+                            @if($answer->notes)
                                 <div class="comments-box">
-                                    <strong><i class="fas fa-comment-alt"></i> Comments:</strong><br>
-                                    {{ $answer->comments }}
+                                    <strong><i class="fas fa-sticky-note"></i> Notes:</strong><br>
+                                    {{ $answer->notes }}
+                                </div>
+                            @endif
+
+                            @if($answer->evidence)
+                                <div class="mt-2">
+                                    <strong><i class="fas fa-paperclip"></i> Evidence:</strong>
+                                    <a href="{{ Storage::url($answer->evidence) }}" target="_blank">View File</a>
                                 </div>
                             @endif
                         </div>
@@ -223,6 +216,16 @@
                 @endforeach
             @endif
         </div>
+
+        <!-- Final Comments -->
+        @if(!empty($submission->comments))
+            <div class="print-section page-break">
+                <h4>Final Comments</h4>
+                <div class="comments-box">
+                    {{ $submission->comments }}
+                </div>
+            </div>
+        @endif
 
         <!-- Footer -->
         <div class="text-center mt-5 pt-3 border-top">
@@ -244,10 +247,5 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Auto-print when page loads (optional)
-        // window.onload = function() { window.print(); }
-    </script>
 </body>
 </html>
