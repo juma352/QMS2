@@ -57,6 +57,41 @@
                 <h6 class="mt-3">Corrective Actions:</h6>
                 <p class="text-muted" style="white-space: pre-wrap;">{{ $audit->corrective_actions ?? 'No corrective actions recorded.' }}</p>
 
+                <hr class="my-4">
+                
+                <h5 class="text-primary fw-semibold mb-3">Checklist Generation</h5>
+                <form action="{{ route('audits.checklist.generate', $audit) }}" method="POST" class="mb-3">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="department_name" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="department_name" name="department_name" 
+                               placeholder="Enter department name" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus-circle me-2"></i>Generate Checklist
+                    </button>
+                </form>
+
+                @if($audit->checklists && $audit->checklists->count() > 0)
+                    <h6 class="mt-3">Generated Checklists:</h6>
+                    <div class="list-group">
+                        @foreach($audit->checklists as $auditChecklist)
+                        <a href="{{ route('audits.checklist.show', ['audit' => $audit->id, 'checklist' => $auditChecklist->checklist->id ?? 0]) }}" 
+                           class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ $auditChecklist->checklist->title ?? 'Checklist' }}</h6>
+                                    <small class="text-muted">{{ $auditChecklist->pivot->department_name ?? 'N/A' }}</small>
+                                </div>
+                                <p class="mb-1">Status: <span class="badge bg-{{ ($auditChecklist->pivot->status ?? '') == 'completed' ? 'success' : 'warning' }}">
+                                    {{ ucfirst($auditChecklist->pivot->status ?? 'pending') }}
+                                </span></p>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-muted">No checklists have been generated for this audit yet.</p>
+                @endif
+
             </div>
 
             <div class="col-md-4 border-start">

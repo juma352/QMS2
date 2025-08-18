@@ -2,7 +2,9 @@
 
 @section('title', 'Checklist Submissions Report')
 
-@include('reports.partials.print-styles')
+@section('styles')
+    @include('reports.partials.print-styles')
+@endsection
 
 @section('content')
 <div class="printable-area">
@@ -15,6 +17,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Checklist Title</th>
+                            <th>Department</th>
                             <th>Submitted By</th>
                             <th>Status</th>
                             <th>Date Submitted</th>
@@ -24,9 +27,10 @@
                         @forelse ($submissions as $submission)
                             <tr>
                                 <td>{{ $submission->checklist->title ?? 'N/A' }}</td>
+                                <td>{{ $submission->department_name ?? 'N/A' }}</td>
                                 <td>{{ $submission->user->name ?? 'N/A' }}</td>
                                 <td>
-                                    <span class="badge text-capitalize bg-{{ $submission->status == 'complete' ? 'success' : 'secondary' }}">
+                                    <span class="badge text-capitalize bg-{{ $submission->status == 'Completed' ? 'success' : 'secondary' }}">
                                         {{ $submission->status }}
                                     </span>
                                 </td>
@@ -34,7 +38,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     No checklist submissions found for the selected criteria.
                                 </td>
                             </tr>

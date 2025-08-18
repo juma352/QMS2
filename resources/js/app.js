@@ -1,4 +1,5 @@
 require('./bootstrap');
+require('./checklist-auto-populate');
 
 // Global openModal function for reports
 window.openModal = function(name, route) {

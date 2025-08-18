@@ -48,4 +48,22 @@ class Audit extends Model
     {
         return $this->belongsTo(Standard::class);
     }
+
+    /**
+     * Get the audit checklists for this audit.
+     */
+    public function auditChecklists()
+    {
+        return $this->hasMany(AuditChecklist::class);
+    }
+
+    /**
+     * Get the checklists for this audit.
+     */
+    public function checklists()
+    {
+        return $this->belongsToMany(Checklist::class, 'audit_checklists')
+            ->withPivot('department_name', 'status', 'generated_by', 'generated_at', 'completed_at')
+            ->withTimestamps();
+    }
 }

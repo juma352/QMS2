@@ -18,4 +18,8 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    #Add to .htaccess or php.ini
+upload_max_filesize = 10M
+post_max_size = 10M
 </IfModule>
