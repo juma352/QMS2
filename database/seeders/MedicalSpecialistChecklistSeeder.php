@@ -18,6 +18,7 @@ class MedicalSpecialistChecklistSeeder extends Seeder
             ['slug' => Str::slug('Medical Specialist Training Institution Checklist')],
             [
                 'title' => 'Medical Specialist Training Institution Checklist',
+                'type' => 'medical_specialist',
                 'description' => 'Comprehensive checklist for medical specialist training institutions based on COSECSA standards',
                 'is_template' => true
             ]

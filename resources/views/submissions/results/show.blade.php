@@ -55,95 +55,148 @@
                             <h5 class="mb-0">Submission Answers</h5>
                         </div>
                         <div class="card-body">
-                            @if($submission->answers->isEmpty())
-                                <div class="text-center py-4">
-                                    <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
-                                    <h6 class="text-muted">No answers found for this submission</h6>
-                                </div>
+                            
+                                                        {{-- Medical Specialist Checklist --}}
+                            @if(!empty($isMedical) && $isMedical)
+                                @foreach($steps as $step => $title)
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">{{ $title }}</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            @if(isset($allQuestions[$step]))
+                                                @foreach($allQuestions[$step] as $question)
+                                                    @php
+                                                        $answer = $answersMap->get($question['id']);
+                                                        $value = $answer ? ($answer->value ?? 'N/A') : 'N/A';
+                                                        $notes = $answer ? ($answer->notes ?? null) : null;
+                                                        $documentPath = $answer ? ($answer->document_path ?? null) : null; // Assuming document_path is stored
+                                                    @endphp
+                                                    <div class="mb-3 p-3 border rounded bg-light">
+                                                        <h6 class="mb-1 font-weight-bold">{{ $question['label'] }}</h6>
+                                                        <small class="text-muted">Type: {{ $question['type'] }}</small>
+
+                                                        <div class="mt-2">
+                                                            <p class="mb-1"><strong>Answer:</strong></p>
+                                                            <div class="p-2 bg-white border rounded">
+                                                                {{ $value }}
+                                                            </div>
+                                                        </div>
+
+                                                        @if($notes)
+                                                            <div class="mt-3 p-3 bg-white rounded border">
+                                                                <strong><i class="fas fa-sticky-note mr-2"></i> Notes:</strong>
+                                                                <p class="mb-0">{{ $notes }}</p>
+                                                            </div>
+                                                        @endif
+
+                                                        @if($documentPath)
+                                                            <div class="mt-2">
+                                                                <strong><i class="fas fa-paperclip mr-2"></i> Evidence:</strong>
+                                                                <a href="{{ Storage::url($documentPath) }}" target="_blank">View File</a>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <p>No questions found for this step.</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                             {{-- Dynamic Checklists --}}
                             @else
-                                <div class="accordion" id="answersAccordion">
-                                    @php
-                                        $groupedAnswers = $submission->answers->groupBy(function($answer) {
-                                            return $answer->checklistItem ? $answer->checklistItem->section : 'General';
-                                        });
-                                    @endphp
+                                @if($submission->answers->isEmpty())
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                                        <h6 class="text-muted">No answers found for this submission</h6>
+                                    </div>
+                                @else
+                                    <div class="accordion" id="answersAccordion">
+                                        @php
+                                            $groupedAnswers = $submission->answers->groupBy(function($answer) {
+                                                return $answer->checklistItem ? $answer->checklistItem->section : 'General';
+                                            });
+                                        @endphp
 
-                                    @foreach($groupedAnswers as $section => $answers)
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-light" id="heading{{ Str::slug($section) }}">
-                                                <h6 class="mb-0">
-                                                    <button class="btn btn-link text-decoration-none text-dark" type="button" data-toggle="collapse" 
-                                                            data-target="#collapse{{ Str::slug($section) }}" aria-expanded="true" 
-                                                            aria-controls="collapse{{ Str::slug($section) }}">
-                                                        <i class="fas fa-chevron-down mr-2"></i>
-                                                        {{ $section }}
-                                                        <span class="badge badge-secondary ml-2">{{ $answers->count() }}</span>
-                                                    </button>
-                                                </h6>
-                                            </div>
+                                        @foreach($groupedAnswers as $section => $answers)
+                                            <div class="card mb-3">
+                                                <div class="card-header bg-light" id="heading{{ Str::slug($section) }}">
+                                                    <h6 class="mb-0">
+                                                        <button class="btn btn-link text-decoration-none text-dark" type="button" data-toggle="collapse" 
+                                                                data-target="#collapse{{ Str::slug($section) }}" aria-expanded="true" 
+                                                                aria-controls="collapse{{ Str::slug($section) }}">
+                                                            <i class="fas fa-chevron-down mr-2"></i>
+                                                            {{ $section }}
+                                                            <span class="badge badge-secondary ml-2">{{ $answers->count() }}</span>
+                                                        </button>
+                                                    </h6>
+                                                </div>
 
-                                            <div id="collapse{{ Str::slug($section) }}" class="collapse show" 
-                                                 aria-labelledby="heading{{ Str::slug($section) }}" 
-                                                 data-parent="#answersAccordion">
-                                                <div class="card-body">
-                                                    @foreach($answers as $index => $answer)
-                                                        @php
-                                                            $ratingValue = $answer->rating;
-                                                            $ratingText = $answer->checklistItem ? $answer->checklistItem->getRatingLabel($ratingValue) : 'N/A';
+                                                <div id="collapse{{ Str::slug($section) }}" class="collapse show" 
+                                                     aria-labelledby="heading{{ Str::slug($section) }}" 
+                                                     data-parent="#answersAccordion">
+                                                    <div class="card-body">
+                                                        @foreach($answers as $index => $answer)
+                                                            @php
+                                                                $ratingValue = $answer->rating;
+                                                                $ratingText = $answer->checklistItem ? $answer->checklistItem->getRatingLabel($ratingValue) : 'N/A';
 
-                                                            $badgeColor = 'secondary';
-                                                            if ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_5') {
-                                                                $badgeColor = $ratingValue >= 4 ? 'success' : ($ratingValue >= 3 ? 'warning' : 'danger');
-                                                            } elseif ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_10') {
-                                                                $badgeColor = $ratingValue >= 8 ? 'success' : ($ratingValue >= 6 ? 'warning' : 'danger');
-                                                            } elseif ($answer->checklistItem && in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
-                                                                $badgeColor = $ratingValue ? 'success' : 'danger';
-                                                            }
-                                                        @endphp
+                                                                $badgeColor = 'secondary';
+                                                                if ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_5') {
+                                                                    $badgeColor = $ratingValue >= 4 ? 'success' : ($ratingValue >= 3 ? 'warning' : 'danger');
+                                                                } elseif ($answer->checklistItem && $answer->checklistItem->rating_type === 'scale_1_10') {
+                                                                    $badgeColor = $ratingValue >= 8 ? 'success' : ($ratingValue >= 6 ? 'warning' : 'danger');
+                                                                } elseif ($answer->checklistItem && in_array($answer->checklistItem->rating_type, ['yes_no', 'pass_fail'])) {
+                                                                    $badgeColor = $ratingValue ? 'success' : 'danger';
+                                                                }
+                                                            @endphp
 
-                                                        <div class="mb-3 p-3 border rounded bg-light">
-                                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                                <div class="flex-grow-1">
-                                                                    <h6 class="mb-1 font-weight-bold">
-                                                                        {{ $index + 1 }}. {{ $answer->checklistItem ? $answer->checklistItem->question_text : 'N/A' }}
-                                                                    </h6>
+                                                            <div class="mb-3 p-3 border rounded bg-light">
+                                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                    <div class="flex-grow-1">
+                                                                        <h6 class="mb-1 font-weight-bold">
+                                                                            {{ $index + 1 }}. {{ $answer->checklistItem ? $answer->checklistItem->question_text : 'N/A' }}
+                                                                        </h6>
+                                                                        <small class="text-muted">
+                                                                            Type: {{ ucfirst(str_replace('_', ' ', $answer->checklistItem ? $answer->checklistItem->rating_type : 'N/A')) }}
+                                                                        </small>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="badge badge-{{ $badgeColor }}">
+                                                                            {{ $ratingText }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mt-2">
                                                                     <small class="text-muted">
-                                                                        Type: {{ ucfirst(str_replace('_', ' ', $answer->checklistItem ? $answer->checklistItem->rating_type : 'N/A')) }}
+                                                                        <strong>Rating:</strong> {{ $ratingValue }} — {{ $ratingText }}
                                                                     </small>
                                                                 </div>
-                                                                <div>
-                                                                    <span class="badge badge-{{ $badgeColor }}">
-                                                                        {{ $ratingText }}
-                                                                    </span>
-                                                                </div>
+
+                                                                @if($answer->notes)
+                                                                    <div class="mt-3 p-3 bg-white rounded border">
+                                                                        <strong><i class="fas fa-sticky-note mr-2"></i> Notes:</strong>
+                                                                        <p class="mb-0">{{ $answer->notes }}</p>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if($answer->evidence)
+                                                                    <div class="mt-2">
+                                                                        <strong><i class="fas fa-paperclip mr-2"></i> Evidence:</strong>
+                                                                        <a href="{{ Storage::url($answer->evidence) }}" target="_blank">View File</a>
+                                                                    </div>
+                                                                @endif
                                                             </div>
-
-                                                            <div class="mt-2">
-                                                                <small class="text-muted">
-                                                                    <strong>Rating:</strong> {{ $ratingValue }} — {{ $ratingText }}
-                                                                </small>
-                                                            </div>
-
-                                                            @if($answer->notes)
-                                                                <div class="mt-3 p-3 bg-white rounded border">
-                                                                    <strong><i class="fas fa-sticky-note mr-2"></i> Notes:</strong>
-                                                                    <p class="mb-0">{{ $answer->notes }}</p>
-                                                                </div>
-                                                            @endif
-
-                                                            @if($answer->evidence)
-                                                                <div class="mt-2">
-                                                                    <strong><i class="fas fa-paperclip mr-2"></i> Evidence:</strong>
-                                                                    <a href="{{ Storage::url($answer->evidence) }}" target="_blank">View File</a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
+                                                        @endforeach
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             @endif
                         </div>
                     </div>

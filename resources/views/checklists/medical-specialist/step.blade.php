@@ -12,11 +12,11 @@
                 <div class="card-body p-3">
                     <ul class="list-group list-group-flush">
                         @foreach($steps as $stepNum => $stepLabel)
-                            @php
-                                $isCompleted = isset($progress) && is_array($progress->completed_steps) && in_array($stepNum, $progress->completed_steps);
-                                $isCurrent = isset($step) && $step == $stepNum;
-                                $isClickable = $isCurrent || $isCompleted;
-                            @endphp
+                           @php
+    $isCompleted = isset($progress) && is_object($progress) && property_exists($progress, 'completed_steps') && is_array($progress->completed_steps) && in_array($stepNum, $progress->completed_steps);
+    $isCurrent = isset($step) && $step == $stepNum;
+    $isClickable = true; // Allow all steps to be clickable
+@endphp
                             <li class="list-group-item {{ $isCurrent ? 'bg-primary text-white fw-semibold' : '' }}">
                                 @if($isClickable)
                                     <a href="{{ route('checklists.medical-specialist.step', ['submission' => $submission->id, 'step' => $stepNum]) }}"

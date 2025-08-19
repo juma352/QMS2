@@ -71,6 +71,6 @@ return [
             ['id' => 'research_funding', 'label' => 'Research Funding (2% of budget)', 'type' => 'textarea'],
             ['id' => 'research_outputs', 'label' => 'Research Outputs Documentation', 'type' => 'textarea'],
             ['id' => 'innovation_support', 'label' => 'Innovation Support', 'type' => 'textarea']
-        ]
+        ],
     ]
 ];

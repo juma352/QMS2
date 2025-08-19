@@ -435,38 +435,47 @@ public function update(Request $request, $id)
     /**
      * Display individual submission details
      */
-    public function resultsShow(\App\Models\ChecklistSubmission $submission)
-    {
-        $submission->load(['checklist', 'user', 'answers']);
+public function resultsShow(\App\Models\ChecklistSubmission $submission)
+{
+    $submission->load(['checklist', 'user']);
 
-        // Check if this is the Medical Specialist Checklist
-        if ($submission->checklist->type === 'medical_specialist') {
-            $progress = \App\Models\ChecklistProgress::where('checklist_submission_id', $submission->id)->firstOrFail();
-            
-            $steps = [
-                1 => 'Administrative Information',
-                2 => 'Governance & Management',
-                3 => 'Academic Programme',
-                4 => 'Physical Infrastructure',
-                5 => 'Faculty/Trainers',
-                6 => 'Student Welfare & Support',
-                7 => 'Programme Monitoring & Evaluation',
-                8 => 'Research & Innovation'
-            ];
+    $isMedical = $submission->checklist->type === 'medical_specialist';
 
-            $allQuestions = collect($steps)->mapWithKeys(function ($title, $step) {
-                return [$step => config('medical_specialist_checklist.questions.' . $step, [])];
-            });
+    $steps = [];
+    $allQuestions = [];
+    $answersMap = collect();
 
-            $answersMap = $submission->answers->keyBy('question_key');
+    if ($isMedical) {
+        $progress = \App\Models\ChecklistProgress::where('checklist_submission_id', $submission->id)->first();
 
-            return view('checklists.medical-specialist.results', compact('submission', 'progress', 'steps', 'allQuestions', 'answersMap'));
-        }
+        $steps = [
+            1 => 'Administrative Information',
+            2 => 'Governance & Management',
+            3 => 'Academic Programme',
+            4 => 'Physical Infrastructure',
+            5 => 'Faculty/Trainers',
+            6 => 'Student Welfare & Support',
+            7 => 'Programme Monitoring & Evaluation',
+            8 => 'Research & Innovation'
+        ];
 
-        // Use the default view for all other checklist results
+        $allQuestions = collect($steps)->mapWithKeys(function ($title, $step) {
+            return [$step => config('medical_specialist_checklist.questions.' . $step, [])];
+        });
+
+        // 🔑 Map answers by question_key
+        $answersMap = $submission->answers->keyBy('question_key');
+    } else {
+        // Normal dynamic checklist
         $submission->load(['answers.checklistItem']);
-        return view('submissions.results.show', compact('submission'));
     }
+
+    return view('submissions.results.show', compact('submission', 'isMedical', 'steps', 'allQuestions', 'answersMap'));
+}
+
+
+
+
     public function destroy($id)
 {
     $submission = ChecklistSubmission::findOrFail($id);

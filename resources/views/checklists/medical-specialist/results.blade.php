@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
 @section('title', 'Medical Specialist Checklist Results')
 
@@ -12,11 +12,20 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <p><strong>Submitted by:</strong> {{ $submission->user->name }}</p>
-                        <p><strong>Submission Date:</strong> {{ $submission->submitted_at->format('F j, Y, g:i a') }}</p>
+                        <p><strong>Submitted by:</strong> {{ $submission->user->name ?? 'N/A' }}</p>
+                        <p><strong>Submission Date:</strong> 
+                            @if ($submission->created_at)
+                                {{ $submission->created_at->timezone('Africa/Nairobi')->format('l, M d, Y \a\t g:i A') }}
+                            @else
+                                N/A
+                            @endif
+                        </p>
                         <p><strong>Status:</strong> <span class="badge bg-{{ $submission->status === 'submitted' ? 'success' : 'warning' }}">{{ ucfirst($submission->status) }}</span></p>
                     </div>
 
+                    <div class="mb-4">
+                        <h5>Checklist Steps:</h5>
+                    </div>
                     @foreach($steps as $step => $stepTitle)
                         <div class="accordion mb-3" id="accordionStep{{ $step }}">
                             <div class="accordion-item">
