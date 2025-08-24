@@ -27,7 +27,6 @@ class MedicalSpecialistChecklistController extends Controller
 
     public function start(): \Illuminate\Http\RedirectResponse
     {
-        Log::info('MedicalSpecialistChecklistController@start method executed.');
         $slug = Str::slug('Medical Specialist Training Institution Checklist');
         $checklist = Checklist::firstOrNew(['slug' => $slug]);
 
