@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Audit extends Model
 {
@@ -45,7 +46,7 @@ class Audit extends Model
     /**
      * Get the standard associated with the audit.
      */
-    public function standard()
+    public function standard(): HasOne
     {
         return $this->belongsTo(Standard::class);
     }
@@ -53,7 +54,7 @@ class Audit extends Model
     /**
      * Get the checklist associated with this audit.
      */
-    public function checklist()
+    public function checklist(): HasOne
     {
         return $this->hasOne(Checklist::class);
     }
@@ -67,12 +68,12 @@ class Audit extends Model
     }
 
     /**
-     * Get the associated checklist through audit_checklists pivot.
+     * Get the associated checklists through audit_checklists pivot.
      */
-    public function checklists()
+    public function checklists(): BelongsToMany
     {
         return $this->belongsToMany(Checklist::class, 'audit_checklists')
-                    ->withPivot('generated_by', 'generated_at')
-                    ->withTimestamps();
+            ->withPivot('department_name', 'status', 'generated_by', 'generated_at', 'completed_at')
+            ->withTimestamps();
     }
 }
