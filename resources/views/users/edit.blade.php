@@ -30,6 +30,8 @@
                     <select name="role" id="role" class="form-select">
                         <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="user" {{ $user->role === 'user' ? 'selected' : '' }}>User</option>
+                        <option value="staff" {{ $user->role === 'staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="hod" {{ $user->role === 'hod' ? 'selected' : '' }}>HOD</option>
                     </select>
                 </div>
 

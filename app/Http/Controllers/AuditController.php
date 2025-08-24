@@ -32,29 +32,35 @@ class AuditController extends Controller
         $request->validate(['type' => 'required|in:Internal,External']);
         $auditType = $request->type;
         $options = $this->getFormOptions();
-        return view('audits.create', compact('auditType') + $options);
+        $auditNumber = 'AUD-' . date('Ymd') . '-' . substr(str_shuffle('0123456789'), 0, 4);
+        $audit = new Audit(['audit_number' => $auditNumber]);
+        return view('audits.create', compact('auditType', 'audit') + $options);
     }
 
     public function store(Request $request)
     {
+        $options = $this->getFormOptions();
         $validated = $request->validate([
             'audit_type' => 'required|in:Internal,External',
             'audit_name' => 'required|string|max:255',
             'audit_number' => 'nullable|string|max:255',
-            'issuing_authority' => 'nullable|string|max:255',
+            'issuing_authority' => 'nullable|in:' . implode(',', $options['issuing_authorities']),
+            'other_issuing_authority' => 'required_if:issuing_authority,Other|string|nullable|max:255',
             'auditor' => 'nullable|string|max:255',
             'standard_id' => 'nullable|exists:standards,id',
-            'status' => 'required|string|max:255',
+            'status' => 'required|in:' . implode(',', $options['statuses']),
             'date_conducted' => 'nullable|date',
-            'next_audit_date' => 'nullable|date',
-            'audit_report' => 'nullable|file|mimes:pdf,docx,jpg,png|max:5120',
-            'supporting_documents.*' => 'nullable|file|mimes:pdf,docx,jpg,png|max:5120',
+            'next_audit_date' => 'nullable|date|after_or_equal:date_conducted',
+            'audit_report' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'supporting_documents.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:5120',
         ]);
 
         $data = $request->except(['audit_report', 'supporting_documents']);
+        $data['other_issuing_authority'] = $request->input('issuing_authority') === 'Other' ? $request->input('other_issuing_authority') : null;
+        $data['issuing_authority'] = $request->input('issuing_authority') === 'Other' ? $request->input('other_issuing_authority') : $request->input('issuing_authority');
 
         if ($request->hasFile('audit_report')) {
-            $data['audit_report_path'] = $request->file('audit_report')->store('audit_reports', 'public');
+            $data['audit_report'] = $request->file('audit_report')->store('audit_reports', 'public');
         }
 
         if ($request->hasFile('supporting_documents')) {
@@ -62,7 +68,7 @@ class AuditController extends Controller
             foreach ($request->file('supporting_documents') as $file) {
                 $paths[] = $file->store('supporting_documents', 'public');
             }
-            $data['supporting_documents_paths'] = $paths;
+            $data['supporting_documents'] = json_encode($paths);
         }
 
         $audit = Audit::create($data);
@@ -79,21 +85,51 @@ class AuditController extends Controller
     public function edit(Audit $audit)
     {
         $options = $this->getFormOptions();
-        return view('audits.edit', compact('audit') + $options);
+        $auditType = $audit->audit_type;
+        return view('audits.edit', compact('audit', 'auditType') + $options);
     }
 
     public function update(Request $request, Audit $audit)
     {
-        // ... (validation similar to store) ...
+        $options = $this->getFormOptions();
+        $validated = $request->validate([
+            'audit_type' => 'required|in:Internal,External',
+            'audit_name' => 'required|string|max:255',
+            'audit_number' => 'nullable|string|max:255',
+            'issuing_authority' => 'nullable|in:' . implode(',', $options['issuing_authorities']),
+            'other_issuing_authority' => 'required_if:issuing_authority,Other|string|nullable|max:255',
+            'auditor' => 'nullable|string|max:255',
+            'standard_id' => 'nullable|exists:standards,id',
+            'status' => 'required|in:' . implode(',', $options['statuses']),
+            'date_conducted' => 'nullable|date',
+            'next_audit_date' => 'nullable|date|after_or_equal:date_conducted',
+            'audit_report' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'supporting_documents.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:5120',
+        ]);
 
         $data = $request->except(['audit_report', 'supporting_documents']);
+        $data['other_issuing_authority'] = $request->input('issuing_authority') === 'Other' ? $request->input('other_iss gin_authority') : null;
+        $data['issuing_authority'] = $request->input('issuing_authority') === 'Other' ? $request->input('other_issuing_authority') : $request->input('issuing_authority');
 
         if ($request->hasFile('audit_report')) {
-            if ($audit->audit_report_path) Storage::disk('public')->delete($audit->audit_report_path);
-            $data['audit_report_path'] = $request->file('audit_report')->store('audit_reports', 'public');
+            if ($audit->audit_report) {
+                Storage::disk('public')->delete($audit->audit_report);
+            }
+            $data['audit_report'] = $request->file('audit_report')->store('audit_reports', 'public');
         }
 
-        // ... (add similar logic for supporting documents) ...
+        if ($request->hasFile('supporting_documents')) {
+            if ($audit->supporting_documents) {
+                foreach (json_decode($audit->supporting_documents, true) as $path) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+            $paths = [];
+            foreach ($request->file('supporting_documents') as $file) {
+                $paths[] = $file->store('supporting_documents', 'public');
+            }
+            $data['supporting_documents'] = json_encode($paths);
+        }
 
         $audit->update($data);
 
@@ -103,9 +139,11 @@ class AuditController extends Controller
 
     public function destroy(Audit $audit)
     {
-        if ($audit->audit_report_path) Storage::disk('public')->delete($audit->audit_report_path);
-        if ($audit->supporting_documents_paths) {
-            foreach ($audit->supporting_documents_paths as $path) {
+        if ($audit->audit_report) {
+            Storage::disk('public')->delete($audit->audit_report);
+        }
+        if ($audit->supporting_documents) {
+            foreach (json_decode($audit->supporting_documents, true) as $path) {
                 Storage::disk('public')->delete($path);
             }
         }

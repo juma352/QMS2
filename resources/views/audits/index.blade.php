@@ -29,6 +29,7 @@
                         <th scope="col">Audit Number</th>
                         <th scope="col">Standard</th>
                         <th scope="col">Date Conducted</th>
+                        <th scope="col">Next Audit Date</th>
                         <th scope="col">Status</th>
                         <th scope="col" class="text-center">Actions</th>
                     </tr>
@@ -42,16 +43,17 @@
                             {{-- We safely access the related standard's name --}}
                             <td>{{ $audit->standard->standard_name ?? 'N/A' }}</td>
                             <td>{{ $audit->date_conducted ? $audit->date_conducted->format('d M, Y') : 'N/A' }}</td>
+                            <td>{{ $audit->next_audit_date ? $audit->next_audit_date->format('d M, Y') : 'N/A' }}</td>
                             <td><span class="badge bg-info text-dark">{{ $audit->status }}</span></td>
                             <td class="text-center">
                                 <div class="d-inline-flex gap-2">
                                     <a href="{{ route('audits.show', $audit->id) }}" class="btn btn-outline-info btn-sm" title="View"><i class="fas fa-eye"></i></a>
                                     <a href="{{ route('audits.edit', $audit->id) }}" class="btn btn-outline-warning btn-sm" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                                    <form action="{{ route('audits.destroy', $audit->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                    {{-- <form action="{{ route('audits.destroy', $audit->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                                    </form>
+                                    </form> --}}
                                 </div>
                             </td>
                         </tr>

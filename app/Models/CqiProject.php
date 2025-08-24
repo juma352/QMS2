@@ -20,6 +20,7 @@ class CqiProject extends Model
         'mission',
         'project_leader',
         'methodology',
+        'custom_methodology',
         'problem_statement',
         'smart_goals',
         'metrics_to_track',

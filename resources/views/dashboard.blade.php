@@ -187,4 +187,28 @@
             </div>
         </div>
     </div>
+{{-- 
+    {{-- {{-- <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Draft Checklists</h4>
+                </div>
+                <div class="card-body">
+                    @if($draftSubmissions->isEmpty())
+                        <p>You have no draft checklists.</p>
+                    @else
+                        <ul class="list-group">
+                            @foreach($draftSubmissions as $draft)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ $draft->checklist->title }}
+                                    <a href="{{ route('checklists.show', ['checklist' => $draft->checklist_id, 'draft_id' => $draft->id]) }}" class="btn btn-sm btn-primary">Continue</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div> --}}
 @endsection

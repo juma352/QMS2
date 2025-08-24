@@ -48,4 +48,8 @@ class Checklist extends Model
     {
         return $this->hasMany(AuditChecklist::class);
     }
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class);
+    }
 }

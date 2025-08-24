@@ -81,23 +81,23 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="license_document" class="form-label">License Document</label>
-                    <input type="file" name="license_document" id="license_document" class="form-control">
+                    <input type="file" name="license_document" id="license_document" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                     <label for="appointment_letter" class="form-label">Appointment Letter</label>
-                    <input type="file" name="appointment_letter" id="appointment_letter" class="form-control">
+                    <input type="file" name="appointment_letter" id="appointment_letter" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                     <label for="cv" class="form-label">CV / Resume</label>
-                    <input type="file" name="cv" id="cv" class="form-control">
+                    <input type="file" name="cv" id="cv" class="form-control" required>
                 </div>
                  <div class="col-md-6">
                     <label for="short_course_certificate" class="form-label">Short Course Certificate</label>
-                    <input type="file" name="short_course_certificate" id="short_course_certificate" class="form-control">
+                    <input type="file" name="short_course_certificate" id="short_course_certificate" class="form-control" required>
                 </div>
                  <div class="col-md-6">
                     <label for="other_certificate" class="form-label">Other Certificate</label>
-                    <input type="file" name="other_certificate" id="other_certificate" class="form-control">
+                    <input type="file" name="other_certificate" id="other_certificate" class="form-control" required>
                 </div>
             </div>
 

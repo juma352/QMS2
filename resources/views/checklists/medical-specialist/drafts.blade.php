@@ -1,53 +1,57 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Medical Specialist Checklist Drafts')
+@section('title', 'My Draft Audits')
 
 @section('content')
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Medical Specialist Checklist Drafts</h4>
+                    <h3 class="card-title">My Draft Audits</h3>
                 </div>
                 <div class="card-body">
-                    @if($drafts->isEmpty())
-                        <p>No drafts found.</p>
-                    @else
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Submission ID</th>
-                                        <th>Checklist Title</th>
-                                        <th>Status</th>
-                                        <th>Last Saved</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($drafts as $draft)
-                                    <tr>
-                                        <td>{{ $draft->id }}</td>
-                                        <td>{{ $draft->checklist->title ?? 'N/A' }}</td>
-                                        <td>{{ ucfirst($draft->status) }}</td>
-                                        <td>{{ $draft->progress->last_saved_at ? $draft->progress->last_saved_at->setTimezone('Africa/Nairobi')->format('M d, Y H:i') : 'N/A' }}</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('checklists.medical-specialist.resume', $draft->id) }}" class="btn btn-sm btn-primary">Resume</a>
-                                                <form action="{{ route('checklists.medical-specialist.drafts.destroy', $draft->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this draft?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    @if (session('success'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('success') }}
                         </div>
                     @endif
+
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 10px">#</th>
+                                <th>Program</th>
+                                <th>Last Saved</th>
+                                <th style="width: 200px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($drafts as $draft)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $draft->department_name ?: 'N/A' }}</td>
+                                    <td>{{ $draft->progress->last_saved_at ? $draft->progress->last_saved_at->format('M d, Y H:i A') : 'Never' }}</td>
+                                    <td>
+                                        <a href="{{ route('checklists.medical-specialist.resume', ['submission' => $draft->id]) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-play"></i> Resume
+                                        </a>
+                                        <form action="{{ route('checklists.medical-specialist.drafts.destroy', ['submission' => $draft->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this draft?');" style="display: inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">You have no draft audits.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

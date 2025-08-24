@@ -13,13 +13,15 @@
         </div>
 
         <div class="card-body p-4">
-            @if(session('message'))
-                <div class="alert alert-success alert-dismissible fade show rounded-3 border-0" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    {{ session('message') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <form action="{{ route('standards.index') }}" method="GET" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search by standard name or number..." value="{{ request('search') }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                    @if(request('search'))
+                        <a href="{{ route('standards.index') }}" class="btn btn-outline-secondary">Clear</a>
+                    @endif
                 </div>
-            @endif
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -30,6 +32,7 @@
                             <th scope="col">Standard Number</th>
                             <th scope="col">Revision</th>
                             <th scope="col">Date of Issue</th>
+                            <th scope="col"> Next Revision Date</th>
                             <th scope="col" class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -41,6 +44,7 @@
                                 <td>{{ $standard->standard_number }}</td>
                                 <td>{{ $standard->revision_version ?? 'N/A' }}</td>
                                 <td>{{ $standard->date_of_issue ? \Carbon\Carbon::parse($standard->date_of_issue)->format('d M, Y') : 'N/A' }}</td>
+                                <td>{{ $standard->next_revision_date ? \Carbon\Carbon::parse($standard->next_revision_date)->format('d M, Y') : 'N/A' }}</td>
                                 <td class="text-center">
                                     <div class="d-inline-flex gap-2">
                                         <a href="{{ route('standards.show', $standard->id) }}" class="btn btn-outline-info btn-sm" title="View">

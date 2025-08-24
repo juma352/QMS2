@@ -26,9 +26,28 @@ class DashboardController extends Controller
 
         // --- 2. Checklist & Compliance Data ---
         $checklists = Checklist::all();
-        $userSubmissions = ChecklistSubmission::where('user_id', $user->id)->get()->keyBy('checklist_id');
+        // Fetch only submitted user submissions
+        $userSubmissions = ChecklistSubmission::with('checklist')
+            ->where('user_id', $user->id)
+            ->where('status', 'submitted') // Add this condition
+            ->get();
+
+        $draftSubmissions = ChecklistSubmission::withoutGlobalScope('submitted')->with('checklist')
+            ->where('user_id', $user->id)
+            ->where('status', 'draft')
+            ->get();
+
+        $internalAudits = $userSubmissions->filter(function ($submission) {
+            return $submission->checklist && $submission->checklist->type === 'dynamic';
+        });
+
+        $externalAudits = $userSubmissions->filter(function ($submission) {
+            return $submission->checklist && $submission->checklist->type === 'medical_specialist';
+        });
+
         $totalChecklists = $checklists->count();
-        $completedChecklists = $userSubmissions->count();
+        // completedChecklists should reflect only the submitted ones
+        $completedChecklists = $userSubmissions->count(); // This count is now correct
         $pendingChecklists = $totalChecklists - $completedChecklists;
         $compliancePercentage = ($totalChecklists > 0) ? round(($completedChecklists / $totalChecklists) * 100) : 100;
 
@@ -83,7 +102,10 @@ class DashboardController extends Controller
             'checklists',
             'userSubmissions',
             'completedChecklists',
-            'pendingChecklists'
+            'pendingChecklists',
+            'internalAudits',
+            'externalAudits',
+            'draftSubmissions'
         ));
     }
 }

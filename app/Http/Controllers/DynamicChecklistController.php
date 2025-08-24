@@ -8,6 +8,7 @@ use App\Models\ChecklistItem;
 use App\Models\AuditChecklist;
 use App\Models\ChecklistSubmission;
 use App\Models\SubmissionAnswer;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -257,7 +258,7 @@ public function update(Request $request, $id)
         }
 
         $medicalSpecialistChecklist = \App\Models\Checklist::with('submissions.answers', 'items')
-            ->where('slug', 'medical-specialist-checklist')->first();
+            ->where('slug', Str::slug('Medical Specialist Training Institution Checklist'))->first();
 
         $staticSubmissionId = null;
         if ($medicalSpecialistChecklist) {
@@ -312,7 +313,9 @@ public function update(Request $request, $id)
         
         $itemsBySection = $checklist->items->groupBy('section');
 
-        return view('checklists.submit', compact('checklist', 'auditChecklist', 'itemsBySection'));
+        $programs = Program::all();
+
+        return view('checklists.submit', compact('checklist', 'auditChecklist', 'itemsBySection', 'programs'));
     }
 
     /**
@@ -364,7 +367,7 @@ public function update(Request $request, $id)
                 'checklist_id' => $id,
                 'user_id' => auth()->id(),
                 'department_name' => $validated['department_name'] ?? null,
-                'status' => 'completed',
+                'status' => 'submitted',
                 'submitted_at' => now()
             ]);
 
@@ -410,6 +413,7 @@ public function update(Request $request, $id)
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
             Log::error('Checklist submission failed', [
                 'checklist_id' => $id,
                 'error' => $e->getMessage(),
@@ -495,5 +499,9 @@ public function resultsShow(\App\Models\ChecklistSubmission $submission)
         return view('submissions.results.print', compact('submission'));
     }
     
+    public function submissionsMenu()
+    {
+        return view('submissions.menu');
+    }
 
 }

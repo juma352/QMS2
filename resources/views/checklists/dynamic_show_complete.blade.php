@@ -119,11 +119,11 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label>Comments/Notes</label>
+                                            <label>Comments/Remarks</label>
                                             <textarea name="items[{{ $item->id }}][comments]" 
                                                       class="form-control" 
                                                       rows="2" 
-                                                      placeholder="Add any additional comments or notes..."></textarea>
+                                                      placeholder="Add any additional comments or remarks..."></textarea>
                                         </div>
                                     </div>
                                 </div>

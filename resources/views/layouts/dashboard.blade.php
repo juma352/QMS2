@@ -222,7 +222,7 @@
                 <i class="fas fa-home icon"></i><span class="link-text">Dashboard</span>
             </a>
             <a href="{{ route('programs.index') }}" class="sidebar-link {{ request()->is('programs*') ? 'active' : '' }}" title="Programs">
-                <i class="fas fa-book icon"></i><span class="link-text">Programs</span>
+                <i class="fas fa-book icon"></i><span class="link-text">Programs Hub</span>
             </a>
             <a href="{{ route('staff.index') }}" class="sidebar-link {{ request()->is('staff*') ? 'active' : '' }}" title="Education Staff">
                 <i class="fas fa-user-tie icon"></i><span class="link-text">Education Staff</span>
@@ -242,9 +242,10 @@
             <a href="{{ route('checklists.dynamic_index') }}" class="sidebar-link {{ request()->is('checklists*') ? 'active' : '' }}" title="Checklists">
                 <i class="fas fa-clipboard icon"></i><span class="link-text">Checklists</span>
             </a>
-            <a href="{{ route('submissions.index') }}" class="sidebar-link {{ request()->is('submissions*') ? 'active' : '' }}" title="My Submissions">
+            <a href="{{ route('submissions.menu') }}" class="sidebar-link {{ request()->is('submissions*') ? 'active' : '' }}" title="My Submissions">
                 <i class="fas fa-clipboard-check icon"></i><span class="link-text">My Submissions</span>
             </a>
+  
             <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->is('reports*') ? 'active' : '' }}" title="Reports">
                 <i class="fas fa-chart-pie icon"></i><span class="link-text">Reports</span>
             </a>

@@ -64,6 +64,11 @@ Route::post('register', [RegisterController::class, 'store'])->name('register.po
 // --- AUTHENTICATED APPLICATION ROUTES ---
 // All routes within this group are protected by the 'auth' middleware.
 // This means a user MUST be logged in to access any of these routes.
+use App\Http\Controllers\DraftController;
+
+Route::get('/drafts', [DraftController::class, 'index'])->name('drafts.index');
+Route::delete('/drafts/{id}', [DraftController::class, 'destroy'])->name('drafts.destroy');
+
 Route::middleware('auth')->group(function () {
 
     // The main application dashboard.
@@ -82,6 +87,8 @@ Route::middleware('auth')->group(function () {
     // Route::resource() is a convenient way to create all the common routes for a resource
     // (index, create, store, show, edit, update, destroy).
     Route::resource('audits', AuditController::class);
+    Route::get('programs/new', [ProgramController::class, 'new'])->name('programs.new');
+    Route::post('programs/storenew', [ProgramController::class, 'storeNew'])->name('programs.storeNew');
     Route::resource('programs', ProgramController::class);
     Route::resource('standards', StandardController::class);
     Route::resource('staff', StaffController::class);
@@ -134,24 +141,27 @@ Route::middleware('auth')->group(function () {
             Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
 
         });
+           // Medical Specialist Checklist Routes
         Route::prefix('medical-specialist')->name('medical-specialist.')->middleware(['auth'])->group(function () {
-    Route::get('/start', [MedicalSpecialistChecklistController::class, 'start'])->name('start');
-    Route::get('/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'showStep'])->name('step');
-    Route::match(['post', 'put'], '/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'saveStep'])->name('save-step');
-    Route::post('/{submission}/save-draft', [MedicalSpecialistChecklistController::class, 'saveDraft'])->name('save-draft');
-    Route::get('/{submission}/resume', [MedicalSpecialistChecklistController::class, 'resume'])->name('resume');
-    Route::post('/{submission}/submit', [MedicalSpecialistChecklistController::class, 'submit'])->name('submit');
-    Route::get('/{submission}/success', function($id) {
-            return view('checklists.medical-specialist.success', ['submission' => $id]);
-        })->name('success');
-    Route::get('/drafts', [MedicalSpecialistChecklistController::class, 'drafts'])->name('drafts');
-    Route::delete('/drafts/{submission}', [MedicalSpecialistChecklistController::class, 'destroyDraft'])->name('drafts.destroy');
-    Route::get('/{submission}/results', [MedicalSpecialistChecklistController::class, 'results'])->name('results');
-});
+            Route::get('/start', [MedicalSpecialistChecklistController::class, 'start'])->name('start');
+            Route::get('/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'showStep'])->name('step');
+            Route::match(['post', 'put'], '/{submission}/step/{step}', [MedicalSpecialistChecklistController::class, 'saveStep'])->name('save-step');
+            Route::post('/{submission}/save-draft', [MedicalSpecialistChecklistController::class, 'saveDraft'])->name('save-draft');
+            Route::get('/{submission}/resume', [MedicalSpecialistChecklistController::class, 'resume'])->name('resume');
+            Route::post('/{submission}/submit', [MedicalSpecialistChecklistController::class, 'submit'])->name('submit');
+            Route::get('/{submission}/success', function($id) {
+                    return view('checklists.medical-specialist.success', ['submission' => $id]);
+                })->name('success');
+            Route::get('/drafts', [MedicalSpecialistChecklistController::class, 'drafts'])->name('drafts');
+            Route::delete('/drafts/{submission}', [MedicalSpecialistChecklistController::class, 'destroyDraft'])->name('drafts.destroy');
+            Route::get('/{submission}/results', [MedicalSpecialistChecklistController::class, 'results'])->name('results')->whereNumber('submission');
+            Route::get('/results', [MedicalSpecialistChecklistController::class, 'resultsIndex'])->name('results.index');
+            Route::post('/{submission}/duplicate', [MedicalSpecialistChecklistController::class, 'duplicate'])->name('duplicate');
+        });
 
-        
-    });
+});
     Route::prefix('submissions')->name('submissions.')->group(function () {
+        Route::get('/menu', [DynamicChecklistController::class, 'submissionsMenu'])->name('menu');
         Route::get('/', [DynamicChecklistController::class, 'resultsIndex'])->name('index');
         Route::get('/{submission}', [DynamicChecklistController::class, 'resultsShow'])->name('show');
         Route::get('/{submission}/print', [DynamicChecklistController::class, 'printSubmission'])->name('print');
@@ -191,5 +201,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
         Route::post('/users/{id}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
     });
+    });
 
-});
+    
+    

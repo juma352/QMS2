@@ -12,9 +12,18 @@ class StandardController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $standards = Standard::latest()->paginate(10);
+        $query = Standard::query();
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+            $query->where('standard_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('standard_number', 'like', "%{$searchTerm}%");
+        }
+
+        $standards = $query->orderBy('standard_name', 'asc')->paginate(10);
+
         return view('standards.index', compact('standards'));
     }
 

@@ -21,6 +21,7 @@ class Audit extends Model
         'audit_name',
         'audit_number',
         'issuing_authority',
+        'other_issuing_authority',
         'auditor',
         'standard_id',
         'status',

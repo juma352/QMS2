@@ -109,5 +109,10 @@ public function getRatingLabel($value = null)
         
         return self::RATING_SCALES[$this->rating_type] ?? [];
     }
+
+    public function answers()
+    {
+        return $this->hasMany(SubmissionAnswer::class);
+    }
 }
 

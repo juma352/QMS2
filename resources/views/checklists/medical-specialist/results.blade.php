@@ -80,10 +80,75 @@
                     @endforeach
                 </div>
                 <div class="card-footer text-end">
-                    <a href="{{ route('submissions.index') }}" class="btn btn-secondary">Back to Submissions</a>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#duplicateModal">
+                        Duplicate
+                    </button>
+                    @if ($submission->status === 'draft')
+                        <a href="{{ route('drafts.index') }}" class="btn btn-secondary">Back to Drafts</a>
+                    @else
+                        <a href="{{ route('submissions.index') }}" class="btn btn-secondary">Back to Submissions</a>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!-- Duplicate Modal -->
+<div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateModalLabel">Duplicate Checklist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="duplicateForm" action="{{ route('checklists.medical-specialist.duplicate', $submission->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new_program_id" class="form-label">Select Program to Duplicate To:</label>
+                        <select class="form-select" id="new_program_id" name="new_program_id" required>
+                            <option value="">Select a Program</option>
+                            @foreach($programs as $program)
+                                <option value="{{ $program->id }}" data-program-name="{{ $program->program_name }}">{{ $program->program_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Confirm Duplicate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.getElementById('duplicateForm').addEventListener('submit', function(event) {
+    var newProgramSelect = document.getElementById('new_program_id');
+    if (newProgramSelect.value === "") {
+        alert('Please select a program.');
+        event.preventDefault();
+        return;
+    }
+    var selectedOption = newProgramSelect.options[newProgramSelect.selectedIndex];
+    var newProgramName = selectedOption.getAttribute('data-program-name');
+
+    @php
+        $originalProgramId = $submission->progress->draft_data[1]['programs'] ?? null;
+        $originalProgram = $originalProgramId ? \App\Models\Program::find($originalProgramId) : null;
+        $originalProgramName = $originalProgram ? $originalProgram->program_name : '';
+    @endphp
+
+    var originalProgramName = "{{ $originalProgramName }}";
+
+    if (newProgramName === originalProgramName) {
+        if (!confirm('Do you want to duplicate this Audit for the same program?')) {
+            event.preventDefault();
+        }
+    }
+});
+</script>
+@endpush

@@ -21,6 +21,7 @@ class CreateChecklistProgressTable extends Migration
             $table->boolean('is_draft')->default(true);
             $table->json('draft_data')->nullable();
             $table->timestamp('last_saved_at')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

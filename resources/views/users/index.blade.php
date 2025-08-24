@@ -38,9 +38,27 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                    <span class="badge text-capitalize bg-{{ $user->role === 'admin' ? 'success' : 'secondary' }}">
+                                    <td>
+                                    @php
+                                        $roleClass = '';
+                                        switch ($user->role) {
+                                            case 'admin':
+                                                $roleClass = 'bg-success';
+                                                break;
+                                            case 'hod':
+                                                $roleClass = 'bg-primary';
+                                                break;
+                                            case 'staff':
+                                                $roleClass = 'bg-info';
+                                                break;
+                                            default:
+                                                $roleClass = 'bg-secondary';
+                                        }
+                                    @endphp
+                                    <span class="badge text-capitalize {{ $roleClass }}">
                                         {{ $user->role }}
                                     </span>
+                                </td>
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $user->is_active ? 'success' : 'danger' }}">

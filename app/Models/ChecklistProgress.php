@@ -38,6 +38,7 @@ class ChecklistProgress extends Model
         'completed_at' => 'datetime',
         'progress_percentage' => 'decimal:2',
         'validation_errors' => 'array',
+        'status' => 'string',
     ];
 
     public function submission()

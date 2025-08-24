@@ -36,6 +36,8 @@
                 <select name="role" id="role" class="form-select" required>
                     <option value="user" selected>User</option>
                     <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                    <option value="hod">HOD</option>
                 </select>
             </div>
 

@@ -8,6 +8,9 @@
             <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between p-3 rounded-top-3">
                 <h2 class="h5 mb-0 fw-semibold">Manage Programs</h2>
                 <a href="{{ route('programs.create') }}" class="btn btn-outline-light btn-sm fw-medium">
+                    <i class="fas fa-plus-circle me-2"></i>Add Program Information
+                </a>
+                <a href="{{ route('programs.new') }}" class="btn btn-outline-light btn-sm fw-medium">
                     <i class="fas fa-plus-circle me-2"></i>Add New Program
                 </a>
             </div>

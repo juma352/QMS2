@@ -88,6 +88,17 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                @elseif($question['type'] === 'select_dynamic')
+                                    <select class="form-select" id="{{ $question['id'] }}"
+                                            name="data[{{ $question['id'] }}]">
+                                        <option value="">Select an option</option>
+                                        @foreach($question['options'] as $id => $name)
+                                            <option value="{{ $id }}"
+                                                {{ (old('data.' . $question['id'], $stepData[$question['id']] ?? '') == $id) ? 'selected' : '' }}>
+                                                {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 @endif
 
                                 @error('data.' . $question['id'])

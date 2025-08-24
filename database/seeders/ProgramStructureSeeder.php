@@ -21,6 +21,7 @@ class ProgramStructureSeeder extends Seeder
         $gme = Subdivision::create(['name' => 'GME']);
         $cpd = Subdivision::create(['name' => 'CPD']);
         $research = Subdivision::create(['name' => 'RESEARCH']);
+        $education = Subdivision::create(['name' => 'EDUCATION']);
 
         // KCHS Schools & Programs
         $nursing = School::create(['subdivision_id' => $kchs->id, 'name' => 'Nursing']);

@@ -33,8 +33,7 @@ class AddMissingColumnsToChecklistProgressTable extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             
             // Add status column for workflow states
-            $table->enum('status', ['not_started', 'in_progress', 'completed', 'submitted', 'approved', 'rejected'])
-                  ->default('not_started');
+            
             
             // Add validation_errors column for storing validation issues
             $table->json('validation_errors')->nullable();

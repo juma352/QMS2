@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Program;
 use App\Models\Subdivision;
+use App\Models\School;
 use App\Models\Staff;
 use App\Models\ProgramDocument;
 use Illuminate\Http\Request;
@@ -17,6 +18,25 @@ class ProgramController extends Controller
     {
         $programs = Program::with(['school.subdivision', 'facultyMember'])->latest()->get();
         return view('programs.index', compact('programs'));
+    }
+
+    public function new()
+    {
+        $subdivisions = Subdivision::orderBy('name')->get();
+        $schools = School::orderBy('name')->get();
+        return view('programs.new', compact('subdivisions', 'schools'));
+    }
+
+    public function storeNew(Request $request)
+    {
+        $validated = $request->validate([
+            'program_name' => 'required|string|max:255',
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        Program::create($validated);
+
+        return redirect()->route('programs.index')->with('success', 'New program created successfully.');
     }
 
     public function create()

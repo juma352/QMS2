@@ -107,24 +107,14 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">Notes</label>
+                            <label class="form-label">Remarks</label>
                             <textarea name="items[{{ $item->id }}][notes]" 
                                       class="form-control" 
                                       rows="2"
-                                      placeholder="Add any additional notes...">{{ $item->response->notes ?? '' }}</textarea>
+                                      placeholder="Add any additional remarks...">{{ $item->response->notes ?? '' }}</textarea>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label class="form-label">Evidence (Optional)</label>
-                            <input type="file" 
-                                   name="items[{{ $item->id }}][evidence]" 
-                                   class="form-control">
-                            @if(isset($item->response->evidence))
-                                <small class="form-text text-muted">
-                                    Current: <a href="{{ Storage::url($item->response->evidence) }}" target="_blank">View Evidence</a>
-                                </small>
-                            @endif
-                        </div>
+                        
                     </div>
                 </div>
             @endforeach
